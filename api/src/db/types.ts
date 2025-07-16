@@ -9,3 +9,14 @@ export interface UpdatePost{
     content? : string, 
     isPublic? : boolean
 }
+export type CreateComment = {
+    userId?: string,
+    postId: string, 
+    content: string,
+    anonymousAuthorName?: string
+}
+export type UpdateComment = {
+    userId: string,
+    postId: string, 
+    content: string
+}

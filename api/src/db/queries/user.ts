@@ -11,6 +11,6 @@ export async function getUserByUsernameAndPassword(username: string, passwordHas
     return result;
 }
 export async function createUser(username: string, passwordHash: string, isAdmin: boolean = false){
-    const [{id}] = await db.insert(users).values({username, password: passwordHash, isAdmin}).returning({ id: users.id });
-    return id;
+    const [result] = await db.insert(users).values({username, password: passwordHash, isAdmin}).returning();
+    return result;
 }

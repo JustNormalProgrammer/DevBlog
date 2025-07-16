@@ -11,7 +11,7 @@ export const comments = pgTable('comments', {
     id: uuid().defaultRandom().primaryKey(),
     userId: uuid().references(() => users.id),
     anonymousAuthorName: varchar({length: 256}),
-    postId: uuid().notNull().references(() => posts.id),
+    postId: uuid().notNull().references(() => posts.id, { onDelete: 'cascade' }),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp().notNull().defaultNow(),
     content: text().notNull(),

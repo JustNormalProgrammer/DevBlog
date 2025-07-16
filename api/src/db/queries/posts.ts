@@ -1,7 +1,7 @@
 import { count, eq, ilike, and, desc, getTableColumns, sql } from "drizzle-orm";
 import { db } from "../index";
 import { comments, posts, users } from "../schema";
-import { CreatePost, UpdatePost } from "../types";
+import { CreateComment, CreatePost, UpdatePost } from "../types";
 
 const ITEMS_ON_PAGE = 10;
 
@@ -59,12 +59,16 @@ export async function getPostComments(postId: string) {
     .orderBy(comments.createdAt);
   return result;
 }
-export async function createPost(userId: string, postData: CreatePost) {
-  const [{ id }] = await db
+export async function createPost(postData: CreatePost) {
+  const [result] = await db
     .insert(posts)
     .values(postData)
-    .returning({ id: posts.id });
-  return id;
+    .returning();
+  return result;
+}
+export async function createComment(commentData: CreateComment){
+  const [result] = await db.insert(comments).values(commentData).returning();
+  return result;
 }
 export async function updatePostById(postId: string, {title, content, isPublic}: UpdatePost) {
   const updates: UpdatePost = {}; 
@@ -77,15 +81,19 @@ export async function updatePostById(postId: string, {title, content, isPublic}:
   if (isPublic !== undefined) {
     updates.isPublic = isPublic;
   }
-  const [result] = await db.update(posts).set(updates).where(eq(posts.id, postId)).returning();
+  const [result] = await db.update(posts).set({...updates, updatedAt: sql`CURRENT_TIMESTAMP`}).where(eq(posts.id, postId)).returning();
+  return result;
+}
+export async function deleteComment(commentId: string){
+  const [result] = await db.delete(comments).where(eq(comments.id, commentId)).returning();
+  return result;
+}
+export async function deletePost(postId: string){
+  const [result] = await db.delete(posts).where(eq(posts.id, postId)).returning();
   return result;
 }
 async function main() {
-  const count = await getPosts("post", 1, true);
-  const test = await getPostById("a8d335c8-241a-45c4-8191-138b98fdcac1");
-  console.log(test);
-  console.log("===============================");
-  const updated = await updatePostById("a8d335c8-241a-45c4-8191-138b98fdcac1", {title: "Updated2 title", isPublic: true})
-  console.log(updated);
+  const count = await deletePost('2f5c5438-694d-4196-b3e1-abf5dc1b8594');
+  console.log(count);
 }
 main();
