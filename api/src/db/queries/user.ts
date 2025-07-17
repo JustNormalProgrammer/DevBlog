@@ -6,6 +6,10 @@ export async function getUserByUsername(username: string){
     const [result] = await db.select().from(users).where(eq(users.username, username)).limit(1);
     return result;
 }
+export async function getUserById(id: string){
+    const [result] = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    return result;
+}
 export async function getUserByUsernameAndPassword(username: string, passwordHash: string){
     const [result] = await db.select().from(users).where(and(eq(users.username, username), eq(users.password, passwordHash))).limit(1);
     return result;

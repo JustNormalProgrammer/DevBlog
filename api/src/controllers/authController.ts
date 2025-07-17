@@ -3,13 +3,15 @@ import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
 import { getUserByUsername, createUser } from "../db/queries/user";
 import jwt from "jsonwebtoken";
+import { matchedData, validationResult } from "express-validator";
+
 export const handleLogin = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
-  if (!username || !password)
-    return res
-      .status(400)
-      .json({ error: "Username and password are required" });
+  const valResult = validationResult(req);
+  if (!valResult.isEmpty()) {
+    return res.status(400).json({ error: valResult.array({ onlyFirstError: true }) });
+  }
   try {
+    const { username, password } = matchedData(req);
     const foundUser = await getUserByUsername(username);
     if (!foundUser) return res.sendStatus(401);
     console.log(password, foundUser.password);
@@ -52,13 +54,13 @@ export const handleLogin = async (req: Request, res: Response) => {
   }
 };
 export const handleRegister = async (req: Request, res: Response) => {
-  const { username, password, adminVerificationPwd } = req.body;
-  if (!username || !password)
-    return res
-      .status(400)
-      .json({ error: "Username and password are required" });
-  const passwordHash = bcrypt.hashSync(password);
+  const valResult = validationResult(req);
+  if (!valResult.isEmpty()) {
+    return res.status(400).json({ error: valResult.array({ onlyFirstError: true }) });
+  }
   try {
+    const { username, password, adminVerificationPwd } = matchedData(req);
+    const passwordHash = bcrypt.hashSync(password);
     const duplicate = await getUserByUsername(username);
     if (duplicate)
       return res.status(400).json({ error: "Username is already in use" });
@@ -71,7 +73,7 @@ export const handleRegister = async (req: Request, res: Response) => {
           .json({ error: "Admin verification password is not valid" });
     }
     const result = await createUser(username, passwordHash, isAdmin);
-    return res.status(201).json(result);
+    return res.sendStatus(201);
   } catch (e) {
     console.log(e);
     res.sendStatus(500);

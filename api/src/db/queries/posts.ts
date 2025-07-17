@@ -1,7 +1,7 @@
 import { count, eq, ilike, and, desc, getTableColumns, sql } from "drizzle-orm";
 import { db } from "../index";
 import { comments, posts, users } from "../schema";
-import { CreateComment, CreatePost, UpdatePost } from "../types";
+import { CreateComment, CreatePost, UpdatePost } from "../../types";
 
 const ITEMS_ON_PAGE = 10;
 
@@ -46,6 +46,14 @@ export async function getPostById(id: string) {
     .limit(1);
   return result;
 }
+export async function getPostByTitle(title: string) {
+  const [result] = await db
+    .select()
+    .from(posts)
+    .where(eq(posts.title, title))
+    .limit(1);
+  return result;
+}
 export async function getPostComments(postId: string) {
   const { anonymousAuthorName, ...rest } = getTableColumns(comments);
   const result = await db
@@ -60,18 +68,18 @@ export async function getPostComments(postId: string) {
   return result;
 }
 export async function createPost(postData: CreatePost) {
-  const [result] = await db
-    .insert(posts)
-    .values(postData)
-    .returning();
+  const [result] = await db.insert(posts).values(postData).returning();
   return result;
 }
-export async function createComment(commentData: CreateComment){
+export async function createComment(commentData: CreateComment) {
   const [result] = await db.insert(comments).values(commentData).returning();
   return result;
 }
-export async function updatePostById(postId: string, {title, content, isPublic}: UpdatePost) {
-  const updates: UpdatePost = {}; 
+export async function updatePostById(
+  postId: string,
+  { title, content, isPublic }: UpdatePost
+) {
+  const updates: UpdatePost = {};
   if (title !== undefined) {
     updates.title = title;
   }
@@ -81,19 +89,24 @@ export async function updatePostById(postId: string, {title, content, isPublic}:
   if (isPublic !== undefined) {
     updates.isPublic = isPublic;
   }
-  const [result] = await db.update(posts).set({...updates, updatedAt: sql`CURRENT_TIMESTAMP`}).where(eq(posts.id, postId)).returning();
+  const [result] = await db
+    .update(posts)
+    .set({ ...updates, updatedAt: sql`CURRENT_TIMESTAMP` })
+    .where(eq(posts.id, postId))
+    .returning();
   return result;
 }
-export async function deleteComment(commentId: string){
-  const [result] = await db.delete(comments).where(eq(comments.id, commentId)).returning();
+export async function deleteComment(commentId: string) {
+  const [result] = await db
+    .delete(comments)
+    .where(eq(comments.id, commentId))
+    .returning();
   return result;
 }
-export async function deletePost(postId: string){
-  const [result] = await db.delete(posts).where(eq(posts.id, postId)).returning();
+export async function deletePost(postId: string) {
+  const [result] = await db
+    .delete(posts)
+    .where(eq(posts.id, postId))
+    .returning();
   return result;
 }
-async function main() {
-  const count = await deletePost('2f5c5438-694d-4196-b3e1-abf5dc1b8594');
-  console.log(count);
-}
-main();

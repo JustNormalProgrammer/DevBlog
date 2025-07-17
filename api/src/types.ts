@@ -1,3 +1,14 @@
+import * as express from 'express-serve-static-core';
+
+declare global {
+    namespace Express {
+        interface Request{
+            username: string | null, 
+            userId: string | null, 
+            isAdmin: boolean,
+        }
+    }
+}
 export interface CreatePost{
     title: string, 
     content: string, 
@@ -10,7 +21,7 @@ export interface UpdatePost{
     isPublic? : boolean
 }
 export type CreateComment = {
-    userId?: string,
+    userId?: string | null,
     postId: string, 
     content: string,
     anonymousAuthorName?: string
