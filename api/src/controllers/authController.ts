@@ -8,7 +8,9 @@ import { matchedData, validationResult } from "express-validator";
 export const handleLogin = async (req: Request, res: Response) => {
   const valResult = validationResult(req);
   if (!valResult.isEmpty()) {
-    return res.status(400).json({ error: valResult.array({ onlyFirstError: true }) });
+    return res
+      .status(400)
+      .json({ error: valResult.array({ onlyFirstError: true }) });
   }
   try {
     const { username, password } = matchedData(req);
@@ -24,7 +26,7 @@ export const handleLogin = async (req: Request, res: Response) => {
           isAdmin: foundUser.isAdmin,
         },
         process.env.ACCESS_TOKEN_SECRET!,
-        { expiresIn: "15m" }
+        { expiresIn: "10s" }
       );
       const refreshToken = jwt.sign(
         {
@@ -56,7 +58,9 @@ export const handleLogin = async (req: Request, res: Response) => {
 export const handleRegister = async (req: Request, res: Response) => {
   const valResult = validationResult(req);
   if (!valResult.isEmpty()) {
-    return res.status(400).json({ error: valResult.array({ onlyFirstError: true }) });
+    return res
+      .status(400)
+      .json({ error: valResult.array({ onlyFirstError: true }) });
   }
   try {
     const { username, password, adminVerificationPwd } = matchedData(req);
@@ -73,9 +77,34 @@ export const handleRegister = async (req: Request, res: Response) => {
           .json({ error: "Admin verification password is not valid" });
     }
     const result = await createUser(username, passwordHash, isAdmin);
-    return res.sendStatus(201);
+    return res.status(201).json({
+      id: result.id, 
+      username: result.username, 
+      isAdmin: result.isAdmin
+    });
   } catch (e) {
     console.log(e);
     res.sendStatus(500);
   }
 };
+export const handleRefreshToken = (req, res) => {
+  const refreshToken = req.cookies?.refreshToken;
+  if(!refreshToken) return res.sendStatus(401);
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!, (err, payload) => {
+    if(err) return res.sendStatus(403);
+    const accessToken = jwt.sign(
+      {
+        id: payload.id,
+        username: payload.username,
+        isAdmin: payload.isAdmin,
+      },
+      process.env.ACCESS_TOKEN_SECRET!,
+      { expiresIn: "20s" }
+    );
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 1000,
+    });
+    return res.json(accessToken);
+  })
+}

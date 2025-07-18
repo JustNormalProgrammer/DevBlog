@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import * as postsDB from "../db/queries/posts";
 import { CreateComment, CreatePost, UpdatePost } from "../types";
 import { matchedData, validationResult } from "express-validator";
-import { Result } from "pg";
+
 interface Query {
   query?: string;
   page?: number;

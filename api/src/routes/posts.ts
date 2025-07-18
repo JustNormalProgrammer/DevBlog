@@ -1,7 +1,10 @@
 import { Router } from "express";
-import { requiredAuth, verifyJWT } from "../middleware/verifyJWT";
+import {verifyJWT } from "../middleware/verifyJWT";
+import { requiredAuth } from "../middleware/requiredAuth";
 import * as postController from "../controllers/posts";
 import { body } from "express-validator";
+import { isAdmin } from "../middleware/isAdmin";
+
 const validatePostCreation = [
   body("title")
     .trim()
@@ -51,7 +54,7 @@ const router = Router();
 
 router.get("/", verifyJWT, postController.getPosts);
 router.get("/pages", verifyJWT, postController.getPostsPages); // For now
-router.post("/", requiredAuth, validatePostCreation, postController.createPost);
+router.post("/", requiredAuth, validatePostCreation, isAdmin, postController.createPost);
 router.get("/:postId/comments", postController.getPostComments);
 router.post(
   "/:postId/comments",
@@ -63,6 +66,7 @@ router.put(
   "/:postId",
   requiredAuth,
   validatePostUpdate,
+  isAdmin,
   postController.updatePost
 );
 

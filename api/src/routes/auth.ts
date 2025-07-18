@@ -1,6 +1,7 @@
 import { handleLogin, handleRegister } from "../controllers/authController";
 import { Router } from "express";
 import { body } from "express-validator";
+
 const validateUser = [
   body("username")
     .trim()
