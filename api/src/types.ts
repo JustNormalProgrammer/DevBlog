@@ -6,6 +6,10 @@ declare global {
             username: string | null, 
             userId: string | null, 
             isAdmin: boolean,
+            accessToken: {
+                value: string, 
+                exp: string;
+            }
         }
     }
 }
@@ -30,4 +34,9 @@ export type UpdateComment = {
     userId: string,
     postId: string, 
     content: string
+}
+export type CreateRevokedToken = {
+    userId: string, 
+    revokedToken: string, 
+    exp: string
 }

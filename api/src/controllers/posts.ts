@@ -54,7 +54,9 @@ export async function createPost(
   const userId = req.userId!;
   const valResult = validationResult(req);
   if (!valResult.isEmpty()) {
-    return res.status(400).json({ error: valResult.array({ onlyFirstError: true }) });
+    return res
+      .status(400)
+      .json({ error: valResult.array({ onlyFirstError: true }) });
   }
   try {
     const { title, content } = matchedData(req);
@@ -82,7 +84,9 @@ export async function createComment(
   if (!postId || !(userId || anonymousAuthorName)) return res.sendStatus(400);
   const valResult = validationResult(req);
   if (!valResult.isEmpty()) {
-    return res.status(400).json({ error: valResult.array({ onlyFirstError: true }) });
+    return res
+      .status(400)
+      .json({ error: valResult.array({ onlyFirstError: true }) });
   }
   try {
     const { content, anonymousAuthorName } = matchedData(req);
@@ -107,7 +111,9 @@ export async function updatePost(
   if (!postId) return res.sendStatus(400);
   const valResult = validationResult(req);
   if (!valResult.isEmpty()) {
-    return res.status(400).json({ error: valResult.array({ onlyFirstError: true }) });
+    return res
+      .status(400)
+      .json({ error: valResult.array({ onlyFirstError: true }) });
   }
   try {
     const { title, content, isPublic } = matchedData(req);

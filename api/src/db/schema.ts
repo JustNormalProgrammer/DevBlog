@@ -1,3 +1,4 @@
+import { primaryKey } from "drizzle-orm/pg-core";
 import { text } from "drizzle-orm/pg-core";
 import {
   pgTable,
@@ -35,3 +36,17 @@ export const posts = pgTable("posts", {
   content: text().notNull(),
   isPublic: boolean().notNull(),
 });
+export const refreshTokens = pgTable("refresh_tokens", {
+  userId: uuid()
+    .references(() => users.id)
+    .primaryKey(),
+  refreshToken: varchar({ length: 256 }).notNull(),
+});
+export const revokedTokens = pgTable("revoked_tokens", {
+  userId: uuid()
+    .references(() => users.id).notNull(),
+  revokedToken: varchar({ length: 256 }).notNull(),
+  exp: varchar({length: 256}).notNull()
+}, (table) => [
+  primaryKey({columns: [table.userId, table.revokedToken]})
+]);

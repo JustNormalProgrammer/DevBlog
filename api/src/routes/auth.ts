@@ -1,6 +1,7 @@
-import { handleLogin, handleRegister } from "../controllers/authController";
+import { handleLogin, handleLogout, handleRegister } from "../controllers/authController";
 import { Router } from "express";
 import { body } from "express-validator";
+import { requiredAuth } from "../middleware/requiredAuth";
 
 const validateUser = [
   body("username")
@@ -20,5 +21,6 @@ const router = Router();
 
 router.post("/login", validateUser, handleLogin);
 router.post("/register", validateUser, handleRegister);
+router.get('/logout', requiredAuth, handleLogout);
 
 export default router;
