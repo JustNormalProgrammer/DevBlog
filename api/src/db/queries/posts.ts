@@ -1,4 +1,13 @@
-import { count, eq, ilike, and, desc, getTableColumns, sql } from "drizzle-orm";
+import {
+  count,
+  eq,
+  ilike,
+  and,
+  desc,
+  getTableColumns,
+  sql,
+  or,
+} from "drizzle-orm";
 import { db } from "../index";
 import { comments, posts, users } from "../schema";
 import { CreateComment, CreatePost, UpdatePost } from "../../types";
@@ -28,7 +37,15 @@ export async function getPosts(
     })
     .from(posts)
     .innerJoin(users, eq(users.id, posts.userId))
-    .where(and(isShowingAll, ilike(posts.title, `%${query}%`)))
+    .where(
+      and(
+        isShowingAll,
+        or(
+          ilike(posts.title, `%${query}%`),
+          ilike(users.username, `%${query}%`)
+        )
+      )
+    )
     .orderBy(desc(posts.createdAt))
     .limit(ITEMS_ON_PAGE)
     .offset(offset);

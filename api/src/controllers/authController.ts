@@ -46,11 +46,14 @@ export const handleLogin = async (req: Request, res: Response) => {
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
         maxAge: 60 * 60 * 1000,
+        sameSite: 'strict', 
+        secure: true,
       });
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
         sameSite: "strict",
+        secure: true,
       });
       await upsertRefreshToken(foundUser.id, refreshToken);
       return res.json({
@@ -134,11 +137,14 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
         maxAge: 60 * 60 * 1000,
+        sameSite: 'strict', 
+        secure: true,
       });
       res.cookie("refreshToken", newRefreshToken, {
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
         sameSite: "strict",
+        secure: true,
       });
       return res.json({ accessToken, refreshToken: newRefreshToken });
     }
