@@ -131,11 +131,12 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
         //   sameSite: 'strict',
         //   secure: true,
         // });
-        res.cookie("refreshToken", newRefreshToken, {
+        res.cookie("refreshToken", refreshToken, {
           httpOnly: true,
           maxAge: 24 * 60 * 60 * 1000,
           sameSite: "none",
           secure: true,
+          path:'/auth/refresh-token'
         });
         return res.json({ accessToken });
       }

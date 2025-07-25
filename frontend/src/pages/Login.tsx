@@ -24,7 +24,7 @@ export default function LoginPage() {
   const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
     try {
       const response = await api.post(
-        'http://localhost:5000/auth/login',
+        '/auth/login',
         data,
         {
           withCredentials: true,

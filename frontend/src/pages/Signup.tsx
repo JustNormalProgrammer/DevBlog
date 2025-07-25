@@ -47,12 +47,12 @@ export default function Signup() {
     if (!asAdmin) delete data.adminVerificationPwd
     try {
       const response = await api.post(
-        'http://localhost:5000/auth/register',
+        '/auth/register',
         data,
         {
           withCredentials: true,
         },
-      )
+      );
       setSuccess(true)
     } catch (err) {
       if (!axios.isAxiosError(err)) {

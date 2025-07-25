@@ -1,13 +1,13 @@
 import axios from "axios";
 
-const baseURL = import.meta.env.BACKEND_URL!;
+const baseURL = import.meta.env.VITE_BACKEND_URL!;
 
 export default axios.create({
-    baseURL: baseURL
+    baseURL
 });
 
 export const axiosPrivate = axios.create({
-    baseURL: baseURL,
+    baseURL,
     headers: { 'Content-Type': 'application/json' },
     withCredentials: true
 });
