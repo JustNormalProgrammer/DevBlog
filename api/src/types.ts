@@ -8,7 +8,7 @@ declare global {
             isAdmin: boolean,
             accessToken: {
                 value: string, 
-                exp: string;
+                exp: number;
             }
         }
     }
@@ -38,5 +38,12 @@ export type UpdateComment = {
 export type CreateRevokedToken = {
     userId: string, 
     revokedToken: string, 
-    exp: string
+    exp: number
 }
+export type MyToken = {
+    id: string;
+    username: string;
+    isAdmin: boolean;
+    exp: number;
+  };
+  

@@ -6,6 +6,7 @@ import {
   varchar,
   timestamp,
   boolean,
+  integer,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -42,11 +43,14 @@ export const refreshTokens = pgTable("refresh_tokens", {
     .primaryKey(),
   refreshToken: varchar({ length: 256 }).notNull(),
 });
-export const revokedTokens = pgTable("revoked_tokens", {
-  userId: uuid()
-    .references(() => users.id).notNull(),
-  revokedToken: varchar({ length: 256 }).notNull(),
-  exp: varchar({length: 256}).notNull()
-}, (table) => [
-  primaryKey({columns: [table.userId, table.revokedToken]})
-]);
+export const revokedTokens = pgTable(
+  "revoked_tokens",
+  {
+    userId: uuid()
+      .references(() => users.id)
+      .notNull(),
+    revokedToken: varchar({ length: 256 }).notNull(),
+    exp: integer().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.revokedToken] })]
+);

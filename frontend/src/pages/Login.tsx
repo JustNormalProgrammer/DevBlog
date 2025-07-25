@@ -5,21 +5,54 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import { useForm } from 'react-hook-form'
+import axios from 'axios'
+import { useState } from 'react'
+import CircularProgress from '@mui/material/CircularProgress'
 import type { SubmitHandler } from 'react-hook-form'
-
-type Inputs = {
-  username: string
-  password: string
-}
+import type { ExpressValidatorError, LoginInputs } from '@/types'
+import api from '@/utils/axios'
+import { CustomLink } from '@/components/primitives/CustomLink'
 
 export default function LoginPage() {
+  const [formError, setFormError] = useState('')
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<Inputs>()
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data)
-  console.log(errors)
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginInputs>()
+  const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
+    try {
+      const response = await api.post(
+        'http://localhost:5000/auth/login',
+        data,
+        {
+          withCredentials: true,
+        },
+      )
+    } catch (err) {
+      if (!axios.isAxiosError(err)) {
+        setFormError('Unexpected error occured')
+        return
+      }
+      const { response } = err
+      if (response?.status === 401) {
+        setFormError('Username or password is invalid')
+        return
+      }
+      const resErrors = response?.data?.error
+      if (Array.isArray(resErrors) && resErrors.length > 0) {
+        resErrors.forEach((error: ExpressValidatorError) => {
+          setError(error.path as 'username' | 'password', {
+            type: 'server',
+            message: error.msg,
+          })
+        })
+      } else {
+        setFormError('Unexpected error occured')
+      }
+    }
+  }
   return (
     <Grid
       container
@@ -40,16 +73,17 @@ export default function LoginPage() {
         >
           Login
         </Typography>
-        <Divider sx={{ marginBottom: 5 }} />
+        <Divider sx={{ marginBottom: 4 }} />
         <Box
           component="form"
+          onChange={() => setFormError('')}
           noValidate
           autoComplete="off"
           sx={{
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            gap: '2rem',
+            gap: '1.5rem',
           }}
           onSubmit={handleSubmit(onSubmit)}
         >
@@ -68,11 +102,14 @@ export default function LoginPage() {
                 message: 'Username cannot exceed 30 characters',
               },
             })}
+            error={!!errors.username}
+            helperText={errors.username?.message}
           />
           <TextField
             label="Password"
             variant="outlined"
             type="password"
+            required
             {...register('password', {
               required: 'Password is required',
               minLength: {
@@ -84,10 +121,31 @@ export default function LoginPage() {
                 message: 'Password cannot exceed 30 characters',
               },
             })}
+            error={!!errors.password}
+            helperText={errors.password?.message}
           />
+          {formError && (
+            <Typography color="error" textAlign={'center'} margin={1}>
+              {formError}
+            </Typography>
+          )}
           <Button variant="contained" type="submit">
-            Login
+            {isSubmitting ? (
+              <CircularProgress size={25} color="inherit" />
+            ) : (
+              'Login'
+            )}
           </Button>
+          <Typography
+            variant="subtitle2"
+            color="textDisabled"
+            textAlign={'center'}
+          >
+            Don't have an account?{' '}
+            <CustomLink to={'/signup'} underline="none">
+              Signup
+            </CustomLink>
+          </Typography>
         </Box>
       </Paper>
     </Grid>

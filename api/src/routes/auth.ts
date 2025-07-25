@@ -1,7 +1,13 @@
-import { handleLogin, handleLogout, handleRegister } from "../controllers/authController";
+import {
+  handleLogin,
+  handleLogout,
+  handleRegister,
+} from "../controllers/authController";
 import { Router } from "express";
 import { body } from "express-validator";
 import { requiredAuth } from "../middleware/requiredAuth";
+import { handleRefreshToken } from "../controllers/authController";
+import { getUserByUsername } from "../db/queries/user";
 
 const validateUser = [
   body("username")
@@ -15,12 +21,27 @@ const validateUser = [
   body("adminVerificationPwd")
     .optional()
     .isLength({ max: 256 })
-    .withMessage("Admin verification password cannot exceed 256 characters"),
+    .withMessage("Admin verification password cannot exceed 256 characters")
+    .custom((value) => {
+      if (value !== process.env.ADMIN_PASSWORD) {
+        throw new Error("Admin verification password invalid");
+      }
+      return true;
+    }),
 ];
 const router = Router();
 
 router.post("/login", validateUser, handleLogin);
-router.post("/register", validateUser, handleRegister);
-router.get('/logout', requiredAuth, handleLogout);
+router.post(
+  "/register",
+  validateUser,
+  body("username").custom(async (value) => {
+    const duplicate = await getUserByUsername(value);
+    if (duplicate) throw new Error("Username already in use");
+  }),
+  handleRegister
+);
+router.get("/logout", requiredAuth, handleLogout);
+router.get("/refresh-token", handleRefreshToken);
 
 export default router;

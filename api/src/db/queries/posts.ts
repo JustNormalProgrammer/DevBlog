@@ -12,23 +12,24 @@ import { db } from "../index";
 import { comments, posts, users } from "../schema";
 import { CreateComment, CreatePost, UpdatePost } from "../../types";
 
-const ITEMS_ON_PAGE = 10;
 
-export async function getPostsPages(query: string, showAll?: boolean) {
+
+export async function getPostsPages(query: string, itemsOnPage:number, showAll?: boolean) {
   const isShowingAll = showAll ? undefined : eq(posts.isPublic, true);
   const [result] = await db
     .select({ count: count() })
     .from(posts)
     .where(and(isShowingAll, ilike(posts.title, `%${query}%`)));
-  const nOfPages = Math.ceil(result?.count / ITEMS_ON_PAGE);
+  const nOfPages = Math.ceil(result?.count / itemsOnPage);
   return nOfPages;
 }
 export async function getPosts(
   query: string,
   currentPage: number,
+  itemsOnPage:number,
   showAll?: boolean
 ) {
-  const offset = (currentPage - 1) * ITEMS_ON_PAGE;
+  const offset = (currentPage - 1) * itemsOnPage;
   const isShowingAll = showAll ? undefined : eq(posts.isPublic, true);
   const result = await db
     .select({
@@ -47,7 +48,7 @@ export async function getPosts(
       )
     )
     .orderBy(desc(posts.createdAt))
-    .limit(ITEMS_ON_PAGE)
+    .limit(itemsOnPage)
     .offset(offset);
   return result;
 }

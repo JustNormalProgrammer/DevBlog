@@ -7,12 +7,14 @@ interface Query {
   query?: string;
   page?: number;
 }
+
+const ITEMS_ON_PAGE = 10;
 // show all posts if user isAdmin
 export async function getPosts(req: Request<{}, {}, {}, Query>, res: Response) {
   const query = req.query?.query || "";
   const currentPage = Number(req.query.page) || 1;
   try {
-    const posts = await postsDB.getPosts(query, currentPage, req.isAdmin);
+    const posts = await postsDB.getPosts(query, currentPage, ITEMS_ON_PAGE, req.isAdmin);
     return res.json(posts);
   } catch (e) {
     res.sendStatus(500);
@@ -25,7 +27,7 @@ export async function getPostsPages(
 ) {
   const query = req.query?.query || "";
   try {
-    const pages = await postsDB.getPostsPages(query, req.isAdmin);
+    const pages = await postsDB.getPostsPages(query, ITEMS_ON_PAGE, req.isAdmin);
     return pages;
   } catch (e) {
     res.sendStatus(500);
@@ -94,7 +96,7 @@ export async function createComment(
       userId,
       postId,
       content,
-      anonymousAuthorName,
+      ...{anonymousAuthorName: userId ? null : anonymousAuthorName},
     });
     return res.json(result);
   } catch (e) {

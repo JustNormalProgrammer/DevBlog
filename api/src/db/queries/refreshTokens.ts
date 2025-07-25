@@ -26,7 +26,7 @@ export async function getUserRefreshToken(
     );
   return result;
 }
-export async function RemoveRefreshToken(userId: string){
+export async function removeRefreshToken(userId: string){
   await db.delete(refreshTokens).where(eq(refreshTokens.userId, userId));
   return;
 }

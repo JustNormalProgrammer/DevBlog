@@ -1,3 +1,4 @@
+import axios from 'axios'
 import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
 import { Grid, Paper } from '@mui/material'
@@ -11,22 +12,26 @@ import InputAdornment from '@mui/material/InputAdornment'
 import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined'
 import { useForm } from 'react-hook-form'
 import { AnimatePresence, motion } from 'motion/react'
+import Snackbar from '@mui/material/Snackbar'
+import Alert from '@mui/material/Alert'
+import CheckIcon from '@mui/icons-material/Check'
+import CircularProgress from '@mui/material/CircularProgress'
 import type { SubmitHandler } from 'react-hook-form'
-
-type Inputs = {
-  username: string
-  password: string
-  adminVerificationPwd: string
-}
+import type { ExpressValidatorError, RegisterInputs } from '@/types'
+import api from '@/utils/axios'
+import { CustomLink } from '@/components/primitives/CustomLink'
 
 export default function Signup() {
   const [asAdmin, setAsAdmin] = useState(false)
   const inputAdminRef = useRef<HTMLInputElement>(null)
+  const [formError, setFormError] = useState('')
+  const [success, setSuccess] = useState(false) // success -> user registered successfully
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<Inputs>()
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterInputs>()
 
   useEffect(() => {
     if (asAdmin && inputAdminRef.current) {
@@ -38,8 +43,41 @@ export default function Signup() {
     setAsAdmin((prev) => !prev)
   }
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data); // https://stackoverflow.com/questions/64469861/react-hook-form-handling-server-side-errors-in-handlesubmit
-  console.log('errors: ', errors);
+  const onSubmit: SubmitHandler<RegisterInputs> = async (data) => {
+    if (!asAdmin) delete data.adminVerificationPwd
+    try {
+      const response = await api.post(
+        'http://localhost:5000/auth/register',
+        data,
+        {
+          withCredentials: true,
+        },
+      )
+      setSuccess(true)
+    } catch (err) {
+      if (!axios.isAxiosError(err)) {
+        setFormError('Unexpected error occured')
+        return
+      }
+      const { response } = err
+      if (response?.status === 401) {
+        setFormError('Username or password is invalid')
+        return
+      }
+      const resErrors = response?.data?.error
+      if (Array.isArray(resErrors) && resErrors.length > 0) {
+        resErrors.forEach((error: ExpressValidatorError) => {
+          setError(error.path as 'username' | 'password', {
+            type: 'server',
+            message: error.msg,
+          })
+        })
+      } else {
+        setFormError('Unexpected error occured')
+      }
+    }
+  } // https://stackoverflow.com/questions/64469861/react-hook-form-handling-server-side-errors-in-handlesubmit
+  console.log(errors)
   return (
     <Grid
       container
@@ -54,7 +92,6 @@ export default function Signup() {
           p: 3,
           maxWidth: '500px',
           width: '100%',
-          transition: '0.5s',
         }}
         elevation={2}
       >
@@ -66,16 +103,17 @@ export default function Signup() {
         >
           Signup
         </Typography>
-        <Divider sx={{ marginBottom: 5 }} />
+        <Divider sx={{ marginBottom: 4 }} />
         <Box
           component="form"
           noValidate
           autoComplete="off"
+          onChange={() => setFormError('')}
           sx={{
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            gap: '2rem',
+            gap: '1.5rem',
           }}
           onSubmit={handleSubmit(onSubmit)}
         >
@@ -85,10 +123,6 @@ export default function Signup() {
             required
             {...register('username', {
               required: 'Username is required',
-              minLength: {
-                value: 1,
-                message: 'Username cannot be empty',
-              },
               maxLength: {
                 value: 30,
                 message: 'Username cannot exceed 30 characters',
@@ -104,10 +138,6 @@ export default function Signup() {
             required
             {...register('password', {
               required: 'Password is required',
-              minLength: {
-                value: 1,
-                message: 'Password cannot be empty',
-              },
               maxLength: {
                 value: 20,
                 message: 'Password cannot exceed 30 characters',
@@ -118,17 +148,17 @@ export default function Signup() {
           />
           <Stack
             direction="row"
-            spacing={1}
             sx={{
               justifyContent: 'center',
               alignItems: 'center',
               alignSelf: 'flex-start',
+              my: -2,
             }}
           >
             <Typography variant="subtitle2" color="textDisabled">
-              Do you want to register as a publisher?{' '}
+              Do you want to register as a publisher?
             </Typography>
-            <Checkbox checked={asAdmin} onChange={handleClick}></Checkbox>
+            <Checkbox checked={asAdmin} onChange={handleClick} size="small" />
           </Stack>
           <AnimatePresence>
             {asAdmin && (
@@ -137,12 +167,16 @@ export default function Signup() {
                 initial={{ height: 0 }}
                 animate={{ height: 'auto' }}
                 exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.15 }}
               >
                 <TextField
                   label="Admin Password"
                   variant="outlined"
-                  helperText={errors.adminVerificationPwd?.message ?? "Enter admin verification password to register as a publisher"}
+                  type="password"
+                  helperText={
+                    errors.adminVerificationPwd?.message ??
+                    'Enter admin verification password to register as a publisher'
+                  }
                   slotProps={{
                     input: {
                       startAdornment: (
@@ -155,6 +189,11 @@ export default function Signup() {
                   fullWidth
                   inputRef={inputAdminRef}
                   {...register('adminVerificationPwd', {
+                    required: 'To register as a publisher enter valid password',
+                    minLength: {
+                      value: 1,
+                      message: 'Verification password cannot be empty',
+                    },
                     maxLength: {
                       value: 256,
                       message:
@@ -166,9 +205,49 @@ export default function Signup() {
               </motion.div>
             )}
           </AnimatePresence>
-          <Button variant="contained" type='submit'>Signup</Button>
+          {formError && (
+            <Typography
+              color="error"
+              textAlign={'center'}
+              sx={{ marginBottom: -1 }}
+            >
+              {formError}
+            </Typography>
+          )}
+          <Button variant="contained" type="submit" sx={{ marginTop: '7px' }}>
+            {isSubmitting ? <CircularProgress size={25} color="inherit"/> : 'Signup'}
+          </Button>
+          <Typography
+            variant="subtitle2"
+            color="textDisabled"
+            textAlign={'center'}
+          >
+            Already have an account?{' '}
+            <CustomLink to={'/login'} underline="none">
+              Login
+            </CustomLink>
+          </Typography>
         </Box>
       </Paper>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={success}
+        onClose={() => {
+          setSuccess(false)
+        }}
+        key={'success'}
+      >
+        <Alert
+          severity="success"
+          icon={<CheckIcon fontSize="inherit" />}
+          variant="filled"
+        >
+          Account created{' '}
+          <CustomLink to={'/login'} underline="none" sx={{ color: '#D0F0C0' }}>
+            Login
+          </CustomLink>
+        </Alert>
+      </Snackbar>
     </Grid>
   )
 }

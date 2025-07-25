@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {verifyJWT } from "../middleware/verifyJWT";
+import { verifyJWT } from "../middleware/verifyJWT";
 import { requiredAuth } from "../middleware/requiredAuth";
 import * as postController from "../controllers/posts";
 import { body } from "express-validator";
@@ -54,14 +54,14 @@ const router = Router();
 
 router.get("/", verifyJWT, postController.getPosts);
 router.get("/pages", verifyJWT, postController.getPostsPages); // For now
-router.post("/", requiredAuth, validatePostCreation, isAdmin, postController.createPost);
-router.get("/:postId/comments", postController.getPostComments);
+router.get("/:postId", postController.getPostById);
 router.post(
-  "/:postId/comments",
-  validateCommentCreation,
-  postController.createComment
+  "/",
+  requiredAuth,
+  validatePostCreation,
+  isAdmin,
+  postController.createPost
 );
-router.get("/:postId", requiredAuth, postController.getPostById);
 router.put(
   "/:postId",
   requiredAuth,
@@ -69,5 +69,12 @@ router.put(
   isAdmin,
   postController.updatePost
 );
+router.post(
+  "/:postId/comments",
+  verifyJWT,
+  validateCommentCreation,
+  postController.createComment
+);
+router.get("/:postId/comments", postController.getPostComments);
 
 export default router;

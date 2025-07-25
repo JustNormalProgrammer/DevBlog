@@ -1,14 +1,11 @@
-import { createLink } from '@tanstack/react-router'
 import {
   Box,
   Button,
   Divider,
-  Link as MUILink,
   Stack,
   Typography,
 } from '@mui/material'
-
-const CustomLink = createLink(MUILink)
+import { CustomLink } from './primitives/CustomLink'
 
 function MainLogo() {
   return (
@@ -18,13 +15,7 @@ function MainLogo() {
           component="img"
           src="/favicon.svg"
           alt="Logo"
-          sx={{
-            width: 70,
-            display: {
-              xs: 'none',
-              sm: 'block',
-            },
-          }}
+          width={70}
         />
         <Typography
           variant="h1"
@@ -34,6 +25,10 @@ function MainLogo() {
             fontSize: {
               xs: '2rem',
               sm: '3rem',
+            },
+            display: {
+              xs: 'none',
+              sm: 'block',
             },
           }}
         >
@@ -46,7 +41,7 @@ function MainLogo() {
 
 export default function Navbar() {
   return (
-    <Box component="header" sx={{ p: 2, width: '100%', color: 'text.primary' }}>
+    <Box component="header" sx={{ p: 2, width: '100%' }}>
       <Box
         component="nav"
         sx={{
