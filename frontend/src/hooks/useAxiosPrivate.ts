@@ -4,8 +4,8 @@ import { useAuth } from '@/contexts/authProvider'
 import { axiosPrivate } from '@/utils/axios'
 
 const useAxiosPrivate = () => {
-  const refresh = useRefreshToken()
-  const { token } = useAuth()
+
+  const { token, refresh } = useAuth()
 
   useEffect(() => {
     const requestIntercept = axiosPrivate.interceptors.request.use(
@@ -17,7 +17,7 @@ const useAxiosPrivate = () => {
       },
       (error) => Promise.reject(error),
     )
-    // What if refresh-token throws 401?
+    // some routes won't throw error, so refresh token won't work?
     const responseIntercept = axiosPrivate.interceptors.response.use(
       (response) => response,
       async (error) => {

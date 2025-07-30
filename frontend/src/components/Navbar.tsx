@@ -1,22 +1,35 @@
 import {
+  Avatar,
   Box,
   Button,
   Divider,
+  IconButton,
+  Menu,
+  MenuItem,
   Stack,
   Typography,
 } from '@mui/material'
+import ListSubheader from '@mui/material/ListSubheader';
+import { styled } from '@mui/material/styles';
+import { useState } from 'react'
 import { CustomLink } from './primitives/CustomLink'
+import StringAvatar from './primitives/StringAvatar'
+import type { User } from '@/types'
+import { useAuth } from '@/contexts/authProvider'
+
+const StyledListHeader = styled(ListSubheader)({
+  backgroundImage: 'var(--Paper-overlay)',
+  fontWeight: 600, 
+  fontSize: '1rem',
+  height: '40px'
+});
+
 
 function MainLogo() {
   return (
     <CustomLink underline="none" to="/">
       <Stack direction="row" spacing={1} alignItems="center">
-        <Box
-          component="img"
-          src="/favicon.svg"
-          alt="Logo"
-          width={70}
-        />
+        <Box component="img" src="/favicon.svg" alt="Logo" width={70} />
         <Typography
           variant="h1"
           sx={{
@@ -39,7 +52,75 @@ function MainLogo() {
   )
 }
 
+function AuthLinks() {
+  return (
+    <>
+      <CustomLink underline="none" to="/login">
+        <Button size="large">Login</Button>
+      </CustomLink>
+      <Divider orientation="vertical" variant="middle" flexItem />
+      <CustomLink underline="none" to="/signup">
+        <Button size="large">Signup</Button>
+      </CustomLink>
+    </>
+  )
+}
+function Profile({
+  user,
+  logout,
+}: {
+  user: User
+  logout: () => Promise<void>
+}) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
+  const handleLogout = () => {
+    setAnchorEl(null)
+    logout();
+  }
+  return (
+    <>
+      <IconButton
+        onClick={handleClick}
+        size="small"
+        sx={{ ml: 2 }}
+        aria-controls={open ? 'account-menu' : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? 'true' : undefined}
+      >
+        <StringAvatar
+          style={{ width: '70px', height: '70px', fontSize: '2.2rem' }}
+        >
+          {user.username}
+        </StringAvatar>
+      </IconButton>
+      <Menu
+        id="demo-positioned-menu"
+        aria-labelledby="demo-positioned-button"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+      >
+        
+        <MenuItem onClick={handleLogout}>Logout</MenuItem>
+      </Menu>
+    </>
+  )
+}
+
 export default function Navbar() {
+  const { user, logout } = useAuth()
   return (
     <Box component="header" sx={{ p: 2, width: '100%' }}>
       <Box
@@ -53,17 +134,11 @@ export default function Navbar() {
       >
         <MainLogo />
         <Stack direction="row" spacing={2}>
-          <CustomLink underline="none" to="/login">
-            <Button size="large">
-              Login
-            </Button>
-          </CustomLink>
-          <Divider orientation="vertical" variant="middle" flexItem />
-          <CustomLink underline="none" to="/signup">
-            <Button size="large" >
-              Signup
-            </Button>
-          </CustomLink>
+          {user?.username ? (
+            <Profile user={user} logout={logout} />
+          ) : (
+            <AuthLinks />
+          )}
         </Stack>
       </Box>
     </Box>

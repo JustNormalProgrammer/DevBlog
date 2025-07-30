@@ -131,7 +131,7 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
         //   sameSite: 'strict',
         //   secure: true,
         // });
-        res.cookie("refreshToken", refreshToken, {
+        res.cookie("refreshToken", newRefreshToken, {
           httpOnly: true,
           maxAge: 24 * 60 * 60 * 1000,
           sameSite: "none",

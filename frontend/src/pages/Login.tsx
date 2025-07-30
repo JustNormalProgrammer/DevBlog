@@ -8,12 +8,15 @@ import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import { useState } from 'react'
 import CircularProgress from '@mui/material/CircularProgress'
+import { useNavigate } from '@tanstack/react-router'
 import type { SubmitHandler } from 'react-hook-form'
 import type { ExpressValidatorError, LoginInputs } from '@/types'
 import api from '@/utils/axios'
 import { CustomLink } from '@/components/primitives/CustomLink'
+import { useAuth } from '@/contexts/authProvider'
 
 export default function LoginPage() {
+  const {login} = useAuth();
   const [formError, setFormError] = useState('')
   const {
     register,
@@ -21,15 +24,11 @@ export default function LoginPage() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginInputs>()
+  const navigate = useNavigate()
   const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
     try {
-      const response = await api.post(
-        '/auth/login',
-        data,
-        {
-          withCredentials: true,
-        },
-      )
+      await login(data);
+      navigate({ to: '/' })
     } catch (err) {
       if (!axios.isAxiosError(err)) {
         setFormError('Unexpected error occured')
