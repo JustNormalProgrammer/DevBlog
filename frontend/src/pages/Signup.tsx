@@ -46,13 +46,9 @@ export default function Signup() {
   const onSubmit: SubmitHandler<RegisterInputs> = async (data) => {
     if (!asAdmin) delete data.adminVerificationPwd
     try {
-      const response = await api.post(
-        '/auth/register',
-        data,
-        {
-          withCredentials: true,
-        },
-      );
+      await api.post('/auth/register', data, {
+        withCredentials: true,
+      })
       setSuccess(true)
     } catch (err) {
       if (!axios.isAxiosError(err)) {
@@ -77,7 +73,6 @@ export default function Signup() {
       }
     }
   } // https://stackoverflow.com/questions/64469861/react-hook-form-handling-server-side-errors-in-handlesubmit
-  console.log(errors)
   return (
     <Grid
       container
@@ -214,8 +209,13 @@ export default function Signup() {
               {formError}
             </Typography>
           )}
-          <Button variant="contained" type="submit" sx={{ marginTop: '7px' }}>
-            {isSubmitting ? <CircularProgress size={25} color="inherit"/> : 'Signup'}
+          <Button
+            variant="contained"
+            type="submit"
+            sx={{ marginTop: '7px' }}
+            loading={isSubmitting}
+          >
+            Signup
           </Button>
           <Typography
             variant="subtitle2"

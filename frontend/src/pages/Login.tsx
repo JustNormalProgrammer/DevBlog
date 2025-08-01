@@ -11,12 +11,11 @@ import CircularProgress from '@mui/material/CircularProgress'
 import { useNavigate } from '@tanstack/react-router'
 import type { SubmitHandler } from 'react-hook-form'
 import type { ExpressValidatorError, LoginInputs } from '@/types'
-import api from '@/utils/axios'
 import { CustomLink } from '@/components/primitives/CustomLink'
 import { useAuth } from '@/contexts/authProvider'
 
 export default function LoginPage() {
-  const {login} = useAuth();
+  const { login } = useAuth()
   const [formError, setFormError] = useState('')
   const {
     register,
@@ -27,7 +26,7 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
     try {
-      await login(data);
+      await login(data)
       navigate({ to: '/' })
     } catch (err) {
       if (!axios.isAxiosError(err)) {
@@ -128,12 +127,8 @@ export default function LoginPage() {
               {formError}
             </Typography>
           )}
-          <Button variant="contained" type="submit">
-            {isSubmitting ? (
-              <CircularProgress size={25} color="inherit" />
-            ) : (
-              'Login'
-            )}
+          <Button variant="contained" type="submit" loading={isSubmitting}>
+            Login
           </Button>
           <Typography
             variant="subtitle2"

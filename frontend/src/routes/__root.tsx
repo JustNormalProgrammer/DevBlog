@@ -1,36 +1,54 @@
-import { Outlet, createRootRoute } from '@tanstack/react-router'
+import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import CssBaseline from '@mui/material/CssBaseline'
-import { ThemeProvider, createTheme } from '@mui/material/styles'
-import { useState } from 'react'
+import {
+  ThemeProvider,
+  createTheme,
+  useColorScheme,
+} from '@mui/material/styles'
+import { Stack } from '@mui/material'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Navbar from '../components/Navbar'
-import { AuthProvider } from '@/contexts/authProvider'
+import type { AuthContext } from '@/contexts/authProvider'
 
-export const Route = createRootRoute({
+
+const queryClient = new QueryClient()
+
+interface MyRouterContext {
+  auth: AuthContext
+}
+
+export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => {
-    const [light, setLight] = useState(true)
-    const themeLight = createTheme({
-      colorSchemes: {
-        dark: false,
-      },
-    })
-
-    const themeDark = createTheme({
+    const theme = createTheme({
       colorSchemes: {
         dark: true,
       },
     })
     return (
       <>
-        <AuthProvider>
-          <ThemeProvider theme={light ? themeLight : themeDark}>
-            <CssBaseline enableColorScheme />
-            <Navbar />
-            <Outlet />
-            <TanStackRouterDevtools />
-          </ThemeProvider>
-        </AuthProvider>
+          <QueryClientProvider client={queryClient}>
+            {' '}
+            <ThemeProvider theme={theme}>
+              <CssBaseline enableColorScheme />
+              <MyApp />
+            </ThemeProvider>
+          </QueryClientProvider>
       </>
     )
   },
 })
+
+function MyApp() {
+  const { mode, setMode } = useColorScheme()
+  if (!mode) {
+    return null
+  }
+  return (
+    <Stack height={'100vh'} p={2}>
+      <Navbar setMode={setMode} />
+      <Outlet />
+      <TanStackRouterDevtools />
+    </Stack>
+  )
+}

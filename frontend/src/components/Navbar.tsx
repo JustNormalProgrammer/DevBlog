@@ -1,7 +1,7 @@
 import {
-  Avatar,
   Box,
   Button,
+  Checkbox,
   Divider,
   IconButton,
   Menu,
@@ -9,25 +9,15 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
-import ListSubheader from '@mui/material/ListSubheader';
-import { styled } from '@mui/material/styles';
 import { useState } from 'react'
 import { CustomLink } from './primitives/CustomLink'
 import StringAvatar from './primitives/StringAvatar'
 import type { User } from '@/types'
 import { useAuth } from '@/contexts/authProvider'
 
-const StyledListHeader = styled(ListSubheader)({
-  backgroundImage: 'var(--Paper-overlay)',
-  fontWeight: 600, 
-  fontSize: '1rem',
-  height: '40px'
-});
-
-
 function MainLogo() {
   return (
-    <CustomLink underline="none" to="/">
+    <CustomLink underline="none" to="/" search={{ q: '', page: 1 }}>
       <Stack direction="row" spacing={1} alignItems="center">
         <Box component="img" src="/favicon.svg" alt="Logo" width={70} />
         <Typography
@@ -82,7 +72,7 @@ function Profile({
   }
   const handleLogout = () => {
     setAnchorEl(null)
-    logout();
+    logout()
   }
   return (
     <>
@@ -112,17 +102,20 @@ function Profile({
           horizontal: 'left',
         }}
       >
-        
         <MenuItem onClick={handleLogout}>Logout</MenuItem>
       </Menu>
     </>
   )
 }
-
-export default function Navbar() {
+type Mode = 'dark' | 'light' | undefined
+export default function Navbar({
+  setMode,
+}: {
+  setMode: (mode: Mode | null) => void
+}) {
   const { user, logout } = useAuth()
   return (
-    <Box component="header" sx={{ p: 2, width: '100%' }}>
+    <Box component="header" sx={{ width: '100%' }}>
       <Box
         component="nav"
         sx={{
@@ -134,6 +127,11 @@ export default function Navbar() {
       >
         <MainLogo />
         <Stack direction="row" spacing={2}>
+          <Checkbox
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setMode(e.currentTarget.checked ? 'light' : 'dark')
+            }
+          />
           {user?.username ? (
             <Profile user={user} logout={logout} />
           ) : (

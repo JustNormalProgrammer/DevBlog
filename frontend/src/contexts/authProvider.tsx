@@ -3,23 +3,23 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useLayoutEffect,
   useState,
 } from 'react'
 import axios from 'axios'
 import api from '../utils/axios'
 import type { LoginInputs, User } from '@/types'
 import getAnonUsername from '@/utils/getAnonUsername'
-import useAxiosPrivate from '@/hooks/useAxiosPrivate'
 
-const AuthContext = createContext<{
+export interface AuthContext {
   user: User | null
   token: string | null
   isAuthenticated: boolean
   refresh: () => Promise<string | null>
   login: (data: LoginInputs) => Promise<void>
   logout: () => Promise<void>
-} | null>(null)
+}
+
+const AuthContext = createContext<AuthContext | null>(null)
 
 export function AuthProvider({ children }: React.PropsWithChildren) {
   const [{ user, token, isAuthenticated }, setState] = useState<{
@@ -27,59 +27,60 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     isAuthenticated: boolean
     token: string | null
   }>({ user: null, isAuthenticated: false, token: null })
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     getAnonUsername()
   }, [])
 
-  useLayoutEffect(() => {
-    console.log('useEffect:', token)
+  useEffect(() => {
     const fetchUser = async () => {
       const accessToken = await refresh()
       console.log('AccessToken:', accessToken)
-      if (!accessToken) return
-      try {
-        const {
-          data: { username, isAdmin },
-        } = await api.get<User>('/users/me', {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
-        setState((prev) => {
-          return {
-            ...prev,
-            user: {
-              username,
-              isAdmin,
+      if (accessToken) {
+        try {
+          const {
+            data: { username, isAdmin },
+          } = await api.get<User>('/users/me', {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
             },
-            isAuthenticated: true,
-          }
-        })
-      } catch (e) {
-        console.log(e)
+            withCredentials: true,
+          })
+          setState((prev) => {
+            return {
+              ...prev,
+              user: {
+                username,
+                isAdmin,
+              },
+              isAuthenticated: true,
+            }
+          })
+          console.log('Auth complete')
+        } catch (e) {
+          console.log(e)
+        } finally {
+          setIsLoading(false)
+        }
       }
+      setIsLoading(false)
     }
     fetchUser()
   }, [])
   // error handling
   const login = useCallback(async (data: LoginInputs) => {
-    try {
-      const response = await api.post('/auth/login', data, {
-        withCredentials: true,
-      })
-      setState({
-        user: {
-          username: response.data.username,
-          isAdmin: response.data.isAdmin,
-        },
-        isAuthenticated: true,
-        token: response.data.accessToken,
-      })
-    } catch (e) {
-      setState({ user: null, isAuthenticated: false, token: null })
-      throw e
-    }
+    const response = await api.post('/auth/login', data, {
+      withCredentials: true,
+    })
+    setState({
+      user: {
+        username: response.data.username,
+        isAdmin: response.data.isAdmin,
+      },
+      isAuthenticated: true,
+      token: response.data.accessToken,
+    })
   }, [])
   // error handling
   const logout = useCallback(async () => {
@@ -132,7 +133,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
         logout,
       }}
     >
-      {children}
+      {isLoading ? null : children}
     </AuthContext.Provider>
   )
 }
