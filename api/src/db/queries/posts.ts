@@ -12,25 +12,25 @@ import { db } from "../index";
 import { comments, posts, users } from "../schema";
 import { CreateComment, CreatePost, UpdatePost } from "../../types";
 
-
-
-export async function getPostsPages(query: string, itemsOnPage:number, showAll?: boolean) {
-  const isShowingAll = showAll ? undefined : eq(posts.isPublic, true);
+export async function getPostsPages(
+  query: string,
+  itemsOnPage: number,
+  isPublic: boolean = true
+) {
   const [result] = await db
     .select({ count: count() })
     .from(posts)
-    .where(and(isShowingAll, ilike(posts.title, `%${query}%`)));
+    .where(and(eq(posts.isPublic, isPublic), ilike(posts.title, `%${query}%`)));
   const nOfPages = Math.ceil(result?.count / itemsOnPage);
   return nOfPages;
 }
 export async function getPosts(
   query: string,
   currentPage: number,
-  itemsOnPage:number,
-  showAll?: boolean
+  itemsOnPage: number,
+  isPublic: boolean = true
 ) {
   const offset = (currentPage - 1) * itemsOnPage;
-  const isShowingAll = showAll ? undefined : eq(posts.isPublic, true);
   const result = await db
     .select({
       ...getTableColumns(posts),
@@ -40,7 +40,7 @@ export async function getPosts(
     .innerJoin(users, eq(users.id, posts.userId))
     .where(
       and(
-        isShowingAll,
+        eq(posts.isPublic, isPublic),
         or(
           ilike(posts.title, `%${query}%`),
           ilike(users.username, `%${query}%`)
@@ -77,7 +77,19 @@ export async function getPostComments(postId: string) {
   const result = await db
     .select({
       ...rest,
-      authorName: sql`coalesce(${users.username}, ${comments.anonymousAuthorName})`,
+      authorName: sql`COALESCE(${users.username}, ${comments.anonymousAuthorName})`,
+      isPublisher:sql`
+      CASE 
+        WHEN ${users.isAdmin} IS NOT NULL THEN ${users.isAdmin}
+        ELSE false
+      END
+      `,
+      isVerified: sql`
+      CASE 
+        WHEN ${comments.userId} IS NOT NULL THEN true
+        ELSE false
+      END
+      `,
     })
     .from(comments)
     .leftJoin(users, eq(users.id, comments.userId))

@@ -9,26 +9,47 @@ interface Query {
 }
 
 const ITEMS_ON_PAGE = 10;
-// show all posts if user isAdmin
+// show only public posts
 export async function getPosts(req: Request<{}, {}, {}, Query>, res: Response) {
   const query = req.query?.query || "";
   const currentPage = Number(req.query.page) || 1;
   try {
-    const posts = await postsDB.getPosts(query, currentPage, ITEMS_ON_PAGE, req.isAdmin);
+    const posts = await postsDB.getPosts(query, currentPage, ITEMS_ON_PAGE);
     return res.json(posts);
   } catch (e) {
     res.sendStatus(500);
   }
 }
-
+export async function getHiddenPosts(req: Request<{}, {}, {}, Query>, res: Response) {
+  const query = req.query?.query || "";
+  const currentPage = Number(req.query.page) || 1;
+  try {
+    const posts = await postsDB.getPosts(query, currentPage, ITEMS_ON_PAGE, false);
+    return res.json(posts);
+  } catch (e) {
+    res.sendStatus(500);
+  }
+}
 export async function getPostsPages(
   req: Request<{}, {}, {}, Query>,
   res: Response
 ) {
   const query = req.query?.query || "";
   try {
-    const pages = await postsDB.getPostsPages(query, ITEMS_ON_PAGE, req.isAdmin);
-    return pages;
+    const pages = await postsDB.getPostsPages(query, ITEMS_ON_PAGE);
+    return res.json({pages});
+  } catch (e) {
+    res.sendStatus(500);
+  }
+}
+export async function getHiddenPostsPages(
+  req: Request<{}, {}, {}, Query>,
+  res: Response
+) {
+  const query = req.query?.query || "";
+  try {
+    const pages = await postsDB.getPostsPages(query, ITEMS_ON_PAGE, false);
+    return res.json({pages});
   } catch (e) {
     res.sendStatus(500);
   }
@@ -45,6 +66,7 @@ export async function getPostComments(
     const comments = await postsDB.getPostComments(postId);
     res.json(comments);
   } catch (e) {
+    console.log(e);
     res.sendStatus(500);
   }
 }
@@ -52,7 +74,6 @@ export async function createPost(
   req: Request<{}, {}, Omit<CreatePost, "userId">>,
   res: Response
 ) {
-  let { isPublic = false } = req.body;
   const userId = req.userId!;
   const valResult = validationResult(req);
   if (!valResult.isEmpty()) {
@@ -61,7 +82,7 @@ export async function createPost(
       .json({ error: valResult.array({ onlyFirstError: true }) });
   }
   try {
-    const { title, content } = matchedData(req);
+    const { title, content, isPublic } = matchedData(req);
     const foundPost = await postsDB.getPostByTitle(title);
     if (foundPost) return res.sendStatus(409);
     const result = await postsDB.createPost({

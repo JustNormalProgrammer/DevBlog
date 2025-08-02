@@ -52,8 +52,15 @@ const validateCommentCreation = [
 
 const router = Router();
 
-router.get("/", verifyJWT, postController.getPosts);
-router.get("/pages", verifyJWT, postController.getPostsPages); // For now
+router.get("/", postController.getPosts);
+router.get("/hidden", requiredAuth, isAdmin, postController.getHiddenPosts);
+router.get("/pages", postController.getPostsPages);
+router.get(
+  "/pages/hidden",
+  requiredAuth,
+  isAdmin,
+  postController.getHiddenPostsPages
+);
 router.get("/:postId", postController.getPostById);
 router.post(
   "/",
