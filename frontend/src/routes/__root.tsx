@@ -27,13 +27,13 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     })
     return (
       <>
-          <QueryClientProvider client={queryClient}>
-            {' '}
-            <ThemeProvider theme={theme}>
-              <CssBaseline enableColorScheme />
-              <MyApp />
-            </ThemeProvider>
-          </QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          {' '}
+          <ThemeProvider theme={theme}>
+            <CssBaseline enableColorScheme />
+            <MyApp />
+          </ThemeProvider>
+        </QueryClientProvider>
       </>
     )
   },

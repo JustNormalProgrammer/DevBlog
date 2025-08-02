@@ -13,6 +13,7 @@ import { useState } from 'react'
 import { CustomLink } from './primitives/CustomLink'
 import StringAvatar from './primitives/StringAvatar'
 import type { User } from '@/types'
+import type { Mode } from 'c:/Users/kzalu/repos/odin-blog/frontend/node_modules/@mui/system/esm/cssVars/useCurrentColorScheme'
 import { useAuth } from '@/contexts/authProvider'
 
 function MainLogo() {
@@ -107,7 +108,7 @@ function Profile({
     </>
   )
 }
-type Mode = 'dark' | 'light' | undefined
+
 export default function Navbar({
   setMode,
 }: {

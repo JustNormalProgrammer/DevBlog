@@ -27,7 +27,7 @@ export default function LoginPage() {
   const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
     try {
       await login(data)
-      navigate({ to: '/' })
+      navigate({ to: '/', search: { q: '', page: 1 } })
     } catch (err) {
       if (!axios.isAxiosError(err)) {
         setFormError('Unexpected error occured')
