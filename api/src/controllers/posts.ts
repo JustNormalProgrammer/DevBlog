@@ -39,6 +39,7 @@ export async function getPostsPages(
     const pages = await postsDB.getPostsPages(query, ITEMS_ON_PAGE);
     return res.json({pages});
   } catch (e) {
+    console.log(e);
     res.sendStatus(500);
   }
 }

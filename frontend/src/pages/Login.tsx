@@ -7,15 +7,19 @@ import Divider from '@mui/material/Divider'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import { useState } from 'react'
-import CircularProgress from '@mui/material/CircularProgress'
-import { useNavigate } from '@tanstack/react-router'
+import { getRouteApi, useNavigate } from '@tanstack/react-router'
+import Snackbar from '@mui/material/Snackbar'
+import Alert from '@mui/material/Alert'
 import type { SubmitHandler } from 'react-hook-form'
 import type { ExpressValidatorError, LoginInputs } from '@/types'
 import { CustomLink } from '@/components/primitives/CustomLink'
 import { useAuth } from '@/contexts/authProvider'
 
+const route = getRouteApi('/login')
+
 export default function LoginPage() {
   const { login } = useAuth()
+  const { redirect } = route.useSearch()
   const [formError, setFormError] = useState('')
   const {
     register,
@@ -24,10 +28,12 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginInputs>()
   const navigate = useNavigate()
+  const [open, setOpen] = useState(redirect !== '/');
+
   const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
     try {
       await login(data)
-      navigate({ to: '/', search: { q: '', page: 1 } })
+      navigate({ to: redirect || '/' })
     } catch (err) {
       if (!axios.isAxiosError(err)) {
         setFormError('Unexpected error occured')
@@ -52,96 +58,113 @@ export default function LoginPage() {
     }
   }
   return (
-    <Grid
-      container
-      sx={{
-        justifyContent: 'center',
-        marginTop: '40px',
-      }}
-    >
-      <Paper
-        sx={{ m: 5, p: 3, maxWidth: '500px', width: '100%' }}
-        elevation={2}
+    <>
+      <Grid
+        container
+        sx={{
+          justifyContent: 'center',
+          marginTop: '40px',
+        }}
       >
-        <Typography
-          variant="h2"
-          align="center"
-          color="primary"
-          marginBottom={1}
+        <Paper
+          sx={{ m: 5, p: 3, maxWidth: '500px', width: '100%' }}
+          elevation={2}
         >
-          Login
-        </Typography>
-        <Divider sx={{ marginBottom: 4 }} />
-        <Box
-          component="form"
-          onChange={() => setFormError('')}
-          noValidate
-          autoComplete="off"
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            gap: '1.5rem',
-          }}
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          <TextField
-            label="Username"
-            variant="outlined"
-            required
-            {...register('username', {
-              required: 'Username is required',
-              minLength: {
-                value: 1,
-                message: 'Username cannot be empty',
-              },
-              maxLength: {
-                value: 30,
-                message: 'Username cannot exceed 30 characters',
-              },
-            })}
-            error={!!errors.username}
-            helperText={errors.username?.message}
-          />
-          <TextField
-            label="Password"
-            variant="outlined"
-            type="password"
-            required
-            {...register('password', {
-              required: 'Password is required',
-              minLength: {
-                value: 1,
-                message: 'Password cannot be empty',
-              },
-              maxLength: {
-                value: 20,
-                message: 'Password cannot exceed 30 characters',
-              },
-            })}
-            error={!!errors.password}
-            helperText={errors.password?.message}
-          />
-          {formError && (
-            <Typography color="error" textAlign={'center'} margin={1}>
-              {formError}
-            </Typography>
-          )}
-          <Button variant="contained" type="submit" loading={isSubmitting}>
-            Login
-          </Button>
           <Typography
-            variant="subtitle2"
-            color="textDisabled"
-            textAlign={'center'}
+            variant="h2"
+            align="center"
+            color="primary"
+            marginBottom={1}
           >
-            Don't have an account?{' '}
-            <CustomLink to={'/signup'} underline="none">
-              Signup
-            </CustomLink>
+            Login
           </Typography>
-        </Box>
-      </Paper>
-    </Grid>
+          <Divider sx={{ marginBottom: 4 }} />
+          <Box
+            component="form"
+            onChange={() => setFormError('')}
+            noValidate
+            autoComplete="off"
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              gap: '1.5rem',
+            }}
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            <TextField
+              label="Username"
+              variant="outlined"
+              required
+              {...register('username', {
+                required: 'Username is required',
+                minLength: {
+                  value: 1,
+                  message: 'Username cannot be empty',
+                },
+                maxLength: {
+                  value: 30,
+                  message: 'Username cannot exceed 30 characters',
+                },
+              })}
+              error={!!errors.username}
+              helperText={errors.username?.message}
+            />
+            <TextField
+              label="Password"
+              variant="outlined"
+              type="password"
+              required
+              {...register('password', {
+                required: 'Password is required',
+                minLength: {
+                  value: 1,
+                  message: 'Password cannot be empty',
+                },
+                maxLength: {
+                  value: 20,
+                  message: 'Password cannot exceed 30 characters',
+                },
+              })}
+              error={!!errors.password}
+              helperText={errors.password?.message}
+            />
+            {formError && (
+              <Typography color="error" textAlign={'center'} margin={1}>
+                {formError}
+              </Typography>
+            )}
+            <Button variant="contained" type="submit" loading={isSubmitting}>
+              Login
+            </Button>
+            <Typography
+              variant="subtitle2"
+              color="textDisabled"
+              textAlign={'center'}
+            >
+              Don't have an account?{' '}
+              <CustomLink to={'/signup'} underline="none">
+                Signup
+              </CustomLink>
+            </Typography>
+          </Box>
+        </Paper>
+      </Grid>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={open}
+        key={'success'}
+        autoHideDuration={5000}
+        onClose={() => setOpen(false)}
+      >
+        <Alert
+          severity='error'
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          You must log in first
+        </Alert>
+      </Snackbar>
+    </>
   )
 }

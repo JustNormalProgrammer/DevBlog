@@ -20,8 +20,18 @@ export async function getPostsPages(
   const [result] = await db
     .select({ count: count() })
     .from(posts)
-    .where(and(eq(posts.isPublic, isPublic), ilike(posts.title, `%${query}%`)));
+    .innerJoin(users, eq(users.id, posts.userId))
+    .where(
+      and(
+        eq(posts.isPublic, isPublic),
+        or(
+          ilike(posts.title, `%${query}%`),
+          ilike(users.username, `%${query}%`)
+        )
+      )
+    );
   const nOfPages = Math.ceil(result?.count / itemsOnPage);
+ console.log('pages: ', nOfPages)
   return nOfPages;
 }
 export async function getPosts(
@@ -78,7 +88,7 @@ export async function getPostComments(postId: string) {
     .select({
       ...rest,
       authorName: sql`COALESCE(${users.username}, ${comments.anonymousAuthorName})`,
-      isPublisher:sql`
+      isPublisher: sql`
       CASE 
         WHEN ${users.isAdmin} IS NOT NULL THEN ${users.isAdmin}
         ELSE false
