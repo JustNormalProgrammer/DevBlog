@@ -64,6 +64,7 @@ export default function LoginPage() {
         sx={{
           justifyContent: 'center',
           marginTop: '40px',
+          width: '100%'
         }}
       >
         <Paper

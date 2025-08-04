@@ -21,7 +21,7 @@ function stringToColor(string: string) {
 export default function StringAvatar({children, style} : {children: string, style: React.CSSProperties} ) {
   return (
     <Avatar sx={{ bgcolor: stringToColor(children), ...style }}>
-      {children[0].toUpperCase()}
+      {children[0].toUpperCase() || 'A'}
     </Avatar>
   )
 }

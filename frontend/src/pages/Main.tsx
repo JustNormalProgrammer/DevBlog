@@ -156,7 +156,7 @@ function BottomNav() {
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: 'auto' }}
-              exit={{ width: 0, opacity: 0 }}
+              exit={{ width: 0 }}
               transition={{ duration: 0.1 }}
             >
               {' '}
@@ -207,7 +207,6 @@ function PostList() {
       sx={{
         justifyContent: 'center',
         alignItems: 'center',
-        maxWidth: '1200px',
         width: '100%',
       }}
     >
@@ -215,7 +214,6 @@ function PostList() {
         <Grid
           key={post.id}
           size={{ xs: 12, md: 6 }}
-          maxWidth={'1000px'}
           component={Link}
           sx={{ textDecoration: 'none' }}
           to={`/posts/${post.id}`}
@@ -247,11 +245,12 @@ export default function Main() {
       direction={'column'}
       my={6}
       marginBottom={'50px'}
+      sx={{maxWidth: '1200px'}}
     >
       <Grid sx={{ display: 'flex', justifyContent: 'center' }}>
         <Paper
           elevation={2}
-          sx={{ padding: 2, maxWidth: '1000px', width: '100%' }}
+          sx={{ padding: 2, width: '100%' }}
         >
           <Input
             fullWidth

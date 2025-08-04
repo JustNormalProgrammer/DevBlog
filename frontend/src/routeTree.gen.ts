@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ForbiddenRouteImport } from './routes/forbidden'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PostsCreateRouteImport } from './routes/posts/create'
 import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
@@ -23,6 +24,11 @@ const SignupRoute = SignupRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForbiddenRoute = ForbiddenRouteImport.update({
+  id: '/forbidden',
+  path: '/forbidden',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,6 +49,7 @@ const PostsPostIdRoute = PostsPostIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/forbidden': typeof ForbiddenRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/posts/$postId': typeof PostsPostIdRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/forbidden': typeof ForbiddenRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/posts/$postId': typeof PostsPostIdRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/forbidden': typeof ForbiddenRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/posts/$postId': typeof PostsPostIdRoute
@@ -65,12 +74,25 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signup' | '/posts/$postId' | '/posts/create'
+  fullPaths:
+    | '/'
+    | '/forbidden'
+    | '/login'
+    | '/signup'
+    | '/posts/$postId'
+    | '/posts/create'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/posts/$postId' | '/posts/create'
+  to:
+    | '/'
+    | '/forbidden'
+    | '/login'
+    | '/signup'
+    | '/posts/$postId'
+    | '/posts/create'
   id:
     | '__root__'
     | '/'
+    | '/forbidden'
     | '/login'
     | '/signup'
     | '/posts/$postId'
@@ -79,6 +101,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ForbiddenRoute: typeof ForbiddenRoute
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
@@ -99,6 +122,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forbidden': {
+      id: '/forbidden'
+      path: '/forbidden'
+      fullPath: '/forbidden'
+      preLoaderRoute: typeof ForbiddenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -127,6 +157,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ForbiddenRoute: ForbiddenRoute,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
   PostsPostIdRoute: PostsPostIdRoute,

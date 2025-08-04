@@ -45,8 +45,8 @@ function MyApp() {
     return null
   }
   return (
-    <Stack  p={2}>
-      <Navbar setMode={setMode} />
+    <Stack  p={2} alignItems={'center'} minHeight={'100vh'}>
+      <Navbar setMode={setMode} mode={mode} />
       <Outlet />
       <TanStackRouterDevtools />
     </Stack>

@@ -10,6 +10,11 @@ export const Route = createFileRoute('/posts/create')({
         },
       })
     }
+    if(!context.auth.user?.isAdmin){
+        throw redirect({
+            to: '/forbidden'
+        })
+    }
   },
   component: RouteComponent,
 })

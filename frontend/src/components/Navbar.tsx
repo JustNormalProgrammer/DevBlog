@@ -10,6 +10,8 @@ import {
   Typography,
 } from '@mui/material'
 import { useState } from 'react'
+import NightsStayIcon from '@mui/icons-material/NightsStay';
+import LightModeIcon from '@mui/icons-material/LightMode'
 import { CustomLink } from './primitives/CustomLink'
 import StringAvatar from './primitives/StringAvatar'
 import type { User } from '@/types'
@@ -86,7 +88,7 @@ function Profile({
         aria-expanded={open ? 'true' : undefined}
       >
         <StringAvatar
-          style={{ width: '70px', height: '70px', fontSize: '2.2rem' }}
+          style={{ width: '50px', height: '50px', fontSize: '2.2rem' }}
         >
           {user.username}
         </StringAvatar>
@@ -110,8 +112,10 @@ function Profile({
 }
 
 export default function Navbar({
-  setMode,
+  mode,
+  setMode
 }: {
+  mode: Mode
   setMode: (mode: Mode | null) => void
 }) {
   const { user, logout } = useAuth()
@@ -127,12 +131,10 @@ export default function Navbar({
         }}
       >
         <MainLogo />
-        <Stack direction="row" spacing={2}>
-          <Checkbox
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setMode(e.currentTarget.checked ? 'light' : 'dark')
-            }
-          />
+        <Stack direction="row" alignItems={'center'} spacing={{xs: 0, md: 2}}>
+          <IconButton aria-label="delete" onClick={() => setMode( mode === 'dark' ? 'light' : 'dark')} sx={{width: '50px', height: '50px'}} >
+            {mode === 'dark' ? <NightsStayIcon/> : <LightModeIcon/> }
+          </IconButton>
           {user?.username ? (
             <Profile user={user} logout={logout} />
           ) : (
