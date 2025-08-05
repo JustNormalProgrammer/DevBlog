@@ -14,7 +14,6 @@ function RouteComponent() {
       direction={'column'}
       alignItems={'center'}
       flexGrow={1}
-      marginTop={'40px'}
       spacing={2}
     >
       <Stack alignItems={'center'} >

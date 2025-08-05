@@ -77,7 +77,6 @@ export default function Signup() {
       container
       sx={{
         justifyContent: 'center',
-        marginTop: '40px',
         width: '100%'
       }}
     >

@@ -1,4 +1,4 @@
-import { Grid, Input, Typography } from '@mui/material'
+import { Grid, Input, Stack, Typography } from '@mui/material'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -42,6 +42,9 @@ function BottomNav() {
     }
     getPages()
   }, [q])
+  useEffect(() => {
+    setPageValue(page);
+  }, [page])
   useEffect(() => {
     const focusInput = () => {
       paginationInput.current?.focus()
@@ -182,24 +185,29 @@ function BottomNav() {
 function PostList() {
   const { page, q } = route.useSearch()
 
-  const { isPending, isError, error, data, isFetching, isPlaceholderData } =
-    useQuery({
-      queryKey: ['posts', page, q],
-      queryFn: async () => {
-        try {
-          const response = await api.get(`/posts/?query=${q}&page=${page}`)
-          return [...response.data]
-        } catch (e) {
-          throw new Error('Failed to connect to the server')
-        }
-      },
-      placeholderData: keepPreviousData,
-    })
+  const { isPending, isError, error, data } = useQuery({
+    queryKey: ['posts', page, q],
+    queryFn: async () => {
+      try {
+        const response = await api.get(`/posts/?query=${q}&page=${page}`)
+        return [...response.data]
+      } catch (e) {
+        throw new Error('Failed to connect to the server')
+      }
+    },
+    placeholderData: keepPreviousData,
+  })
 
-  if (isError) return error.message
-  return isPending ? (
-    'Loading...'
-  ) : (
+  if (isError)
+    return (
+      <Stack spacing={3} >
+        <Typography variant="h1" color="textDisabled" textAlign={'center'}>:&#40;</Typography>
+        <Typography variant="h5" color="textDisabled" textAlign={'center'}>We are currently experiencing a problem. Try again later</Typography>
+      </Stack>
+    )
+  if (isPending) return 'Loading...'
+
+  return (
     <Grid
       container
       spacing={1}
@@ -215,7 +223,7 @@ function PostList() {
           key={post.id}
           size={{ xs: 12, md: 6 }}
           component={Link}
-          sx={{ textDecoration: 'none' }}
+          sx={{ textDecoration: 'none', userSelect: 'text' }}
           to={`/posts/${post.id}`}
         >
           <Paper elevation={5} sx={{ height: '300px', minWidth: '200px' }}>
@@ -245,13 +253,11 @@ export default function Main() {
       direction={'column'}
       my={6}
       marginBottom={'50px'}
-      sx={{maxWidth: '1200px'}}
+      marginTop={0}
+      width={'100%'}
     >
       <Grid sx={{ display: 'flex', justifyContent: 'center' }}>
-        <Paper
-          elevation={2}
-          sx={{ padding: 2, width: '100%' }}
-        >
+        <Paper elevation={2} sx={{ padding: 2, width: '100%' }}>
           <Input
             fullWidth
             id="input-with-icon-adornment"

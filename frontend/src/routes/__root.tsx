@@ -11,7 +11,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Navbar from '../components/Navbar'
 import type { AuthContext } from '@/contexts/authProvider'
 
-
 const queryClient = new QueryClient()
 
 interface MyRouterContext {
@@ -45,9 +44,11 @@ function MyApp() {
     return null
   }
   return (
-    <Stack  p={2} alignItems={'center'} minHeight={'100vh'}>
+    <Stack p={2} alignItems={'center'} minHeight={'100vh'}>
       <Navbar setMode={setMode} mode={mode} />
-      <Outlet />
+      <Stack sx={{width: '100%', maxWidth: '1200px', marginTop: '48px'}} alignItems={'center'}>
+        <Outlet />
+      </Stack>
       <TanStackRouterDevtools />
     </Stack>
   )
