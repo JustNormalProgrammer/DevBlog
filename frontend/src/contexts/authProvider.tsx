@@ -8,7 +8,6 @@ import React, {
 import axios from 'axios'
 import api from '../utils/axios'
 import type { LoginInputs, User } from '@/types'
-import getAnonUsername from '@/utils/getAnonUsername'
 
 export interface AuthContext {
   user: User | null
@@ -28,10 +27,6 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     token: string | null
   }>({ user: null, isAuthenticated: false, token: null })
   const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    getAnonUsername()
-  }, [])
 
   useEffect(() => {
     const fetchUser = async () => {

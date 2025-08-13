@@ -11,10 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HiddenRouteImport } from './routes/hidden'
 import { Route as ForbiddenRouteImport } from './routes/forbidden'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PostsCreateRouteImport } from './routes/posts/create'
-import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
+import { Route as PostsPostIdIndexRouteImport } from './routes/posts/$postId/index'
+import { Route as PostsPostIdHiddenRouteImport } from './routes/posts/$postId/hidden'
+import { Route as PostsPostIdEditRouteImport } from './routes/posts/$postId/edit'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -24,6 +27,11 @@ const SignupRoute = SignupRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HiddenRoute = HiddenRouteImport.update({
+  id: '/hidden',
+  path: '/hidden',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForbiddenRoute = ForbiddenRouteImport.update({
@@ -41,71 +49,102 @@ const PostsCreateRoute = PostsCreateRouteImport.update({
   path: '/posts/create',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PostsPostIdRoute = PostsPostIdRouteImport.update({
-  id: '/posts/$postId',
-  path: '/posts/$postId',
+const PostsPostIdIndexRoute = PostsPostIdIndexRouteImport.update({
+  id: '/posts/$postId/',
+  path: '/posts/$postId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PostsPostIdHiddenRoute = PostsPostIdHiddenRouteImport.update({
+  id: '/posts/$postId/hidden',
+  path: '/posts/$postId/hidden',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PostsPostIdEditRoute = PostsPostIdEditRouteImport.update({
+  id: '/posts/$postId/edit',
+  path: '/posts/$postId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/forbidden': typeof ForbiddenRoute
+  '/hidden': typeof HiddenRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/posts/$postId': typeof PostsPostIdRoute
   '/posts/create': typeof PostsCreateRoute
+  '/posts/$postId/edit': typeof PostsPostIdEditRoute
+  '/posts/$postId/hidden': typeof PostsPostIdHiddenRoute
+  '/posts/$postId': typeof PostsPostIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/forbidden': typeof ForbiddenRoute
+  '/hidden': typeof HiddenRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/posts/$postId': typeof PostsPostIdRoute
   '/posts/create': typeof PostsCreateRoute
+  '/posts/$postId/edit': typeof PostsPostIdEditRoute
+  '/posts/$postId/hidden': typeof PostsPostIdHiddenRoute
+  '/posts/$postId': typeof PostsPostIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/forbidden': typeof ForbiddenRoute
+  '/hidden': typeof HiddenRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/posts/$postId': typeof PostsPostIdRoute
   '/posts/create': typeof PostsCreateRoute
+  '/posts/$postId/edit': typeof PostsPostIdEditRoute
+  '/posts/$postId/hidden': typeof PostsPostIdHiddenRoute
+  '/posts/$postId/': typeof PostsPostIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/forbidden'
+    | '/hidden'
     | '/login'
     | '/signup'
-    | '/posts/$postId'
     | '/posts/create'
+    | '/posts/$postId/edit'
+    | '/posts/$postId/hidden'
+    | '/posts/$postId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/forbidden'
+    | '/hidden'
     | '/login'
     | '/signup'
-    | '/posts/$postId'
     | '/posts/create'
+    | '/posts/$postId/edit'
+    | '/posts/$postId/hidden'
+    | '/posts/$postId'
   id:
     | '__root__'
     | '/'
     | '/forbidden'
+    | '/hidden'
     | '/login'
     | '/signup'
-    | '/posts/$postId'
     | '/posts/create'
+    | '/posts/$postId/edit'
+    | '/posts/$postId/hidden'
+    | '/posts/$postId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ForbiddenRoute: typeof ForbiddenRoute
+  HiddenRoute: typeof HiddenRoute
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
-  PostsPostIdRoute: typeof PostsPostIdRoute
   PostsCreateRoute: typeof PostsCreateRoute
+  PostsPostIdEditRoute: typeof PostsPostIdEditRoute
+  PostsPostIdHiddenRoute: typeof PostsPostIdHiddenRoute
+  PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -122,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hidden': {
+      id: '/hidden'
+      path: '/hidden'
+      fullPath: '/hidden'
+      preLoaderRoute: typeof HiddenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forbidden': {
@@ -145,11 +191,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/posts/$postId': {
-      id: '/posts/$postId'
+    '/posts/$postId/': {
+      id: '/posts/$postId/'
       path: '/posts/$postId'
       fullPath: '/posts/$postId'
-      preLoaderRoute: typeof PostsPostIdRouteImport
+      preLoaderRoute: typeof PostsPostIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/posts/$postId/hidden': {
+      id: '/posts/$postId/hidden'
+      path: '/posts/$postId/hidden'
+      fullPath: '/posts/$postId/hidden'
+      preLoaderRoute: typeof PostsPostIdHiddenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/posts/$postId/edit': {
+      id: '/posts/$postId/edit'
+      path: '/posts/$postId/edit'
+      fullPath: '/posts/$postId/edit'
+      preLoaderRoute: typeof PostsPostIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -158,10 +218,13 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ForbiddenRoute: ForbiddenRoute,
+  HiddenRoute: HiddenRoute,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
-  PostsPostIdRoute: PostsPostIdRoute,
   PostsCreateRoute: PostsCreateRoute,
+  PostsPostIdEditRoute: PostsPostIdEditRoute,
+  PostsPostIdHiddenRoute: PostsPostIdHiddenRoute,
+  PostsPostIdIndexRoute: PostsPostIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

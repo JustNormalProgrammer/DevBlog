@@ -10,13 +10,8 @@ export const Route = createFileRoute('/forbidden')({
 
 function RouteComponent() {
   return (
-    <Stack
-      direction={'column'}
-      alignItems={'center'}
-      flexGrow={1}
-      spacing={2}
-    >
-      <Stack alignItems={'center'} >
+    <Stack direction={'column'} alignItems={'center'} flexGrow={1} spacing={2}>
+      <Stack alignItems={'center'}>
         <Typography variant="h1" color="textDisabled">
           403
         </Typography>

@@ -8,18 +8,19 @@ type LoginSearch = {
 export const Route = createFileRoute('/login')({
   validateSearch: (search: Record<string, unknown>): LoginSearch => {
     return {
-      redirect: search.redirect as string || '/'
+      redirect: (search.redirect as string) || '/',
     }
   },
-  beforeLoad: ({context, search}) => {
-    if(context.auth.isAuthenticated){
+  beforeLoad: ({ context, search }) => {
+    if (context.auth.isAuthenticated) {
       throw redirect({
-        to: search.redirect || '/'})
+        to: search.redirect || '/',
+      })
     }
   },
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  return <LoginPage/>
+  return <LoginPage />
 }

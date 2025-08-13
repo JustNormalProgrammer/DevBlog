@@ -20,11 +20,19 @@ export async function getPosts(req: Request<{}, {}, {}, Query>, res: Response) {
     res.sendStatus(500);
   }
 }
-export async function getHiddenPosts(req: Request<{}, {}, {}, Query>, res: Response) {
+export async function getHiddenPosts(
+  req: Request<{}, {}, {}, Query>,
+  res: Response
+) {
   const query = req.query?.query || "";
   const currentPage = Number(req.query.page) || 1;
   try {
-    const posts = await postsDB.getPosts(query, currentPage, ITEMS_ON_PAGE, false);
+    const posts = await postsDB.getPosts(
+      query,
+      currentPage,
+      ITEMS_ON_PAGE,
+      false
+    );
     return res.json(posts);
   } catch (e) {
     res.sendStatus(500);
@@ -37,7 +45,7 @@ export async function getPostsPages(
   const query = req.query?.query || "";
   try {
     const pages = await postsDB.getPostsPages(query, ITEMS_ON_PAGE);
-    return res.json({pages});
+    return res.json({ pages });
   } catch (e) {
     console.log(e);
     res.sendStatus(500);
@@ -50,7 +58,7 @@ export async function getHiddenPostsPages(
   const query = req.query?.query || "";
   try {
     const pages = await postsDB.getPostsPages(query, ITEMS_ON_PAGE, false);
-    return res.json({pages});
+    return res.json({ pages });
   } catch (e) {
     res.sendStatus(500);
   }
@@ -84,8 +92,6 @@ export async function createPost(
   }
   try {
     const { title, content, isPublic } = matchedData(req);
-    const foundPost = await postsDB.getPostByTitle(title);
-    if (foundPost) return res.sendStatus(409);
     const result = await postsDB.createPost({
       title,
       content,
@@ -118,7 +124,7 @@ export async function createComment(
       userId,
       postId,
       content,
-      ...{anonymousAuthorName: userId ? null : anonymousAuthorName},
+      ...{ anonymousAuthorName: userId ? null : anonymousAuthorName },
     });
     return res.json(result);
   } catch (e) {
@@ -160,6 +166,12 @@ export async function getPostById(
 ) {
   const { postId } = req.params;
   if (!postId) return res.sendStatus(400);
+  const valResult = validationResult(req);
+  if (!valResult.isEmpty()) {
+    return res
+      .status(404)
+      .json({ error: valResult.array({ onlyFirstError: true }) });
+  }
   try {
     const foundPost = await postsDB.getPostById(postId);
     if (!foundPost) return res.sendStatus(404);
@@ -168,3 +180,50 @@ export async function getPostById(
     res.sendStatus(500);
   }
 }
+export async function getHiddenPostById(
+  req: Request<{ postId: string }>,
+  res: Response
+) {
+  const { postId } = req.params;
+  if (!postId) return res.sendStatus(400);
+  const valResult = validationResult(req);
+  if (!valResult.isEmpty()) {
+    return res
+      .status(404)
+      .json({ error: valResult.array({ onlyFirstError: true }) });
+  }
+  try {
+    const foundPost = await postsDB.getHiddenPostById(postId);
+    if (!foundPost) return res.sendStatus(404);
+    return res.json(foundPost);
+  } catch (e) {
+    res.sendStatus(500);
+  }
+}
+export async function deleteComment(
+  req: Request<{ commentId: string }>,
+  res: Response
+) {
+  const { commentId } = req.params;
+  if (!commentId) return res.sendStatus(400);
+  try {
+    postsDB.deleteComment(commentId);
+    return res.sendStatus(200);
+  } catch (e) {
+    res.sendStatus(500);
+  }
+}
+export async function deletePost(
+  req: Request<{ postId: string }>,
+  res: Response
+) {
+  const { postId } = req.params;
+  if (!postId) return res.sendStatus(400);
+  try {
+    postsDB.deletePost(postId);
+    return res.sendStatus(200);
+  } catch (e) {
+    res.sendStatus(500);
+  }
+}
+

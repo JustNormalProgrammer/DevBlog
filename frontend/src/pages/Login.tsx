@@ -28,7 +28,7 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginInputs>()
   const navigate = useNavigate()
-  const [open, setOpen] = useState(redirect !== '/');
+  const [open, setOpen] = useState(redirect !== '/')
 
   const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
     try {
@@ -63,7 +63,7 @@ export default function LoginPage() {
         container
         sx={{
           justifyContent: 'center',
-          width: '100%'
+          width: '100%',
         }}
       >
         <Paper
@@ -157,11 +157,7 @@ export default function LoginPage() {
         autoHideDuration={5000}
         onClose={() => setOpen(false)}
       >
-        <Alert
-          severity='error'
-          variant="filled"
-          sx={{ width: '100%' }}
-        >
+        <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
           You must log in first
         </Alert>
       </Snackbar>

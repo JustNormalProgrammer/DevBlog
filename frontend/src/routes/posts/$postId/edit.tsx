@@ -1,6 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { Editor } from '@tinymce/tinymce-react'
-import { useQueryClient } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import {
   Button,
@@ -12,12 +11,16 @@ import {
 import Stack from '@mui/material/Stack'
 import axios from 'axios'
 import { Controller, useForm } from 'react-hook-form'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import Backdrop from '@mui/material/Backdrop'
+import CircularProgress from '@mui/material/CircularProgress'
 import type { SubmitHandler } from 'react-hook-form'
 import type { Editor as TinyMCEEditor } from 'tinymce'
-import type { CreatePostInputs } from '@/types'
+import type { CreatePostInputs, PostResponse } from '@/types'
 import useAxiosPrivate from '@/hooks/useAxiosPrivate'
+import api from '@/utils/axios'
 
-export const Route = createFileRoute('/posts/create')({
+export const Route = createFileRoute('/posts/$postId/edit')({
   beforeLoad: ({ context }) => {
     if (!context.auth.isAuthenticated) {
       throw redirect({
@@ -42,6 +45,7 @@ function RouteComponent() {
     return null
   }
   const queryClient = useQueryClient()
+  const { postId } = Route.useParams()
   const [formError, setFormError] = useState('')
   const privateApi = useAxiosPrivate()
   const editorRef = useRef<TinyMCEEditor>(null)
@@ -57,20 +61,30 @@ function RouteComponent() {
       isPublic: true,
     },
   })
-  const onSubmit: SubmitHandler<CreatePostInputs> = async (data) => {
+  const { isPending, isError, error, data } = useQuery<{}, Error, PostResponse>(
+    {
+      queryKey: ['posts', postId],
+      queryFn: async () => {
+        const response = await api.get(`/posts/${postId}`)
+        return response.data
+      },
+      staleTime: 60 * 1000,
+    },
+  )
+  const onSubmit: SubmitHandler<CreatePostInputs> = async (inputData) => {
     if (editorRef.current) {
       try {
-        const response = await privateApi.post('/posts', {
-          ...data,
+        const response = await privateApi.put(`/posts/${data?.id}`, {
+          ...inputData,
           content: editorRef.current.getContent(),
         })
-        queryClient.invalidateQueries({ queryKey: ['posts'] })
+        queryClient.invalidateQueries({ queryKey: ['posts', postId] })
         navigate({ to: '/posts/$postId', params: { postId: response.data.id } })
       } catch (err) {
         if (axios.isAxiosError(err)) {
           if (err.response?.status === 401)
             setFormError(
-              'You are not logged in. Please log in to create a post',
+              'You are not logged in. Please log in to update this post',
             )
           if (Array.isArray(err.response?.data.error)) {
             if (err.response.data.error[0].path === 'title') {
@@ -85,11 +99,32 @@ function RouteComponent() {
             }
           }
         }
-        setFormError('Unexpected error occured')
+        setFormError('Unexpected error occured. Failed to update the post')
       }
       console.log({ ...data, content: editorRef.current.getContent() })
     }
   }
+  if (isError) {
+    return (
+      <Stack spacing={3}>
+        <Typography variant="h1" color="textDisabled" textAlign={'center'}>
+          :&#40;
+        </Typography>
+        <Typography variant="h5" color="textDisabled" textAlign={'center'}>
+          Failed to fetch this post from the server
+        </Typography>
+      </Stack>
+    )
+  }
+  if (isPending)
+    return (
+      <Backdrop
+        sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+        open={isPending}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    )
   return (
     <Stack
       spacing={3}
@@ -103,15 +138,16 @@ function RouteComponent() {
         label="Title"
         fullWidth
         id="title"
+        defaultValue={data.title}
         {...register('title', {
           required: 'Title is required',
           minLength: {
             value: 1,
-            message: 'Title cannot be empty',
+            message: 'Username cannot be empty',
           },
           maxLength: {
-            value: 256,
-            message: 'Title cannot exceed 256 characters',
+            value: 30,
+            message: 'Username cannot exceed 30 characters',
           },
         })}
         error={!!errors.title}
@@ -120,7 +156,8 @@ function RouteComponent() {
       <Editor
         key={mode}
         apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
-        onInit={(evt, editor) => (editorRef.current = editor)}
+        onInit={(_evt, editor) => (editorRef.current = editor)}
+        initialValue={data.content}
         init={{
           placeholder: 'Type content of the post here...',
           height: 500,

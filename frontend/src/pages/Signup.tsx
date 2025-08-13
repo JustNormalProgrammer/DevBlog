@@ -77,7 +77,7 @@ export default function Signup() {
       container
       sx={{
         justifyContent: 'center',
-        width: '100%'
+        width: '100%',
       }}
     >
       <Paper

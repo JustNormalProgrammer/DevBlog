@@ -6,8 +6,9 @@ import {
   createTheme,
   useColorScheme,
 } from '@mui/material/styles'
-import { Stack } from '@mui/material'
+import { Stack, Typography } from '@mui/material'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import Navbar from '../components/Navbar'
 import type { AuthContext } from '@/contexts/authProvider'
 
@@ -32,8 +33,21 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
             <CssBaseline enableColorScheme />
             <MyApp />
           </ThemeProvider>
+          <ReactQueryDevtools initialIsOpen={false} position="right" />
         </QueryClientProvider>
       </>
+    )
+  },
+  notFoundComponent: () => {
+    return (
+      <Stack spacing={3}>
+        <Typography variant="h1" color="textDisabled" textAlign={'center'}>
+          404
+        </Typography>
+        <Typography variant="h5" color="textDisabled" textAlign={'center'}>
+          Page not found
+        </Typography>
+      </Stack>
     )
   },
 })
@@ -46,7 +60,10 @@ function MyApp() {
   return (
     <Stack p={2} alignItems={'center'} minHeight={'100vh'}>
       <Navbar setMode={setMode} mode={mode} />
-      <Stack sx={{width: '100%', maxWidth: '1200px', marginTop: '48px'}} alignItems={'center'}>
+      <Stack
+        sx={{ width: '100%', maxWidth: '1200px', marginTop: '48px' }}
+        alignItems={'center'}
+      >
         <Outlet />
       </Stack>
       <TanStackRouterDevtools />

@@ -1,6 +1,8 @@
+import { Badge, Typography } from '@mui/material'
 import Avatar from '@mui/material/Avatar'
+import { useAuth } from '@/contexts/authProvider'
 
-function stringToColor(string: string) {
+export function stringToColor(string: string) {
   let hash = 0
   let i
 
@@ -14,14 +16,29 @@ function stringToColor(string: string) {
     const value = (hash >> (i * 8)) & 0xff
     color += `00${value.toString(16)}`.slice(-2)
   }
-
   return color
 }
 
-export default function StringAvatar({children, style} : {children: string, style: React.CSSProperties} ) {
+export default function StringAvatar({
+  children,
+  style,
+  showBadge = true,
+}: {
+  showBadge?: boolean
+  children: string
+  style: React.CSSProperties
+}) {
+  const { user } = useAuth()
+  let visible = false
+  if (user?.username === children) {
+    visible = true
+  }
+  const color = stringToColor(children);
   return (
-    <Avatar sx={{ bgcolor: stringToColor(children), ...style }}>
-      {children[0].toUpperCase() || 'A'}
-    </Avatar>
+    <Badge color='info' variant="dot" invisible={!(showBadge && visible)}>
+      <Avatar sx={{ bgcolor: color, ...style }}>
+        <Typography>{children[0].toUpperCase() || 'A'}</Typography>
+      </Avatar>
+    </Badge>
   )
 }

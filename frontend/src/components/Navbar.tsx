@@ -10,8 +10,9 @@ import {
   Typography,
 } from '@mui/material'
 import { useState } from 'react'
-import NightsStayIcon from '@mui/icons-material/NightsStay';
+import NightsStayIcon from '@mui/icons-material/NightsStay'
 import LightModeIcon from '@mui/icons-material/LightMode'
+import { useNavigate } from '@tanstack/react-router'
 import { CustomLink } from './primitives/CustomLink'
 import StringAvatar from './primitives/StringAvatar'
 import type { User } from '@/types'
@@ -65,6 +66,7 @@ function Profile({
   user: User
   logout: () => Promise<void>
 }) {
+  const navigate = useNavigate()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -89,6 +91,7 @@ function Profile({
       >
         <StringAvatar
           style={{ width: '50px', height: '50px', fontSize: '2.2rem' }}
+          showBadge={false}
         >
           {user.username}
         </StringAvatar>
@@ -105,6 +108,16 @@ function Profile({
           horizontal: 'left',
         }}
       >
+        {user.isAdmin && (
+          <MenuItem
+            onClick={() => {
+              navigate({ to: '/posts/create', from: '/' })
+              setAnchorEl(null)
+            }}
+          >
+            Create Post
+          </MenuItem>
+        )}
         <MenuItem onClick={handleLogout}>Logout</MenuItem>
       </Menu>
     </>
@@ -113,12 +126,12 @@ function Profile({
 
 export default function Navbar({
   mode,
-  setMode
+  setMode,
 }: {
   mode: Mode
   setMode: (mode: Mode | null) => void
 }) {
-  const { user, logout } = useAuth()
+  const { user, isAuthenticated, logout } = useAuth()
   return (
     <Box component="header" sx={{ width: '100%' }}>
       <Box
@@ -131,11 +144,15 @@ export default function Navbar({
         }}
       >
         <MainLogo />
-        <Stack direction="row" alignItems={'center'} spacing={{xs: 0, md: 2}}>
-          <IconButton aria-label="delete" onClick={() => setMode( mode === 'dark' ? 'light' : 'dark')} sx={{width: '50px', height: '50px'}} >
-            {mode === 'dark' ? <NightsStayIcon/> : <LightModeIcon/> }
+        <Stack direction="row" alignItems={'center'} spacing={{ xs: 0, md: 2 }}>
+          <IconButton
+            aria-label="delete"
+            onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}
+            sx={{ width: '50px', height: '50px' }}
+          >
+            {mode === 'dark' ? <NightsStayIcon /> : <LightModeIcon />}
           </IconButton>
-          {user?.username ? (
+          {isAuthenticated && user ? (
             <Profile user={user} logout={logout} />
           ) : (
             <AuthLinks />

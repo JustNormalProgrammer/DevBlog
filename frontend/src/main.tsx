@@ -22,7 +22,9 @@ declare module '@tanstack/react-router' {
 
 function InnerApp() {
   const auth = useAuth()
-  return <RouterProvider router={router} context={{ auth }} />
+  return (
+    <RouterProvider router={router} context={{ auth }} notFoundMode="fuzzy" />
+  )
 }
 
 function App() {
@@ -36,9 +38,5 @@ function App() {
 const rootElement = document.getElementById('app')
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
-  root.render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  )
+  root.render(<App />)
 }

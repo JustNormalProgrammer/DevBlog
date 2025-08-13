@@ -70,7 +70,19 @@ export async function getPostById(id: string) {
     })
     .from(posts)
     .innerJoin(users, eq(users.id, posts.userId))
-    .where(eq(posts.id, id))
+    .where(and(eq(posts.id, id), eq(posts.isPublic, true)))
+    .limit(1);
+  return result;
+}
+export async function getHiddenPostById(id: string) {
+  const [result] = await db
+    .select({
+      ...getTableColumns(posts),
+      username: users.username,
+    })
+    .from(posts)
+    .innerJoin(users, eq(users.id, posts.userId))
+    .where(and(eq(posts.id, id), eq(posts.isPublic, false)))
     .limit(1);
   return result;
 }
@@ -104,7 +116,7 @@ export async function getPostComments(postId: string) {
     .from(comments)
     .leftJoin(users, eq(users.id, comments.userId))
     .where(eq(comments.postId, postId))
-    .orderBy(comments.createdAt);
+    .orderBy(desc(comments.createdAt));
   return result;
 }
 export async function createPost(postData: CreatePost) {

@@ -36,7 +36,17 @@ router.post(
   "/register",
   validateUser,
   body("username").custom(async (value) => {
-    const duplicate = await getUserByUsername(value);
+    let duplicate: {
+      id: string;
+      username: string;
+      password: string;
+      isAdmin: boolean;
+    } | null = null;
+    try {
+      duplicate = await getUserByUsername(value);
+    } catch (e) {
+      throw new Error("Failed to connect to the database. Cannot sign in.");
+    }
     if (duplicate) throw new Error("Username already in use");
   }),
   handleRegister

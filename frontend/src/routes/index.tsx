@@ -2,8 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import Main from '@/pages/Main'
 
 type PostSearch = {
-  q: string,
-  page: number,
+  q: string
+  page: number
 }
 
 export const Route = createFileRoute('/')({
@@ -17,7 +17,5 @@ export const Route = createFileRoute('/')({
 })
 
 function App() {
-  return (
-    <Main/>
-  )
+  return <Main />
 }
