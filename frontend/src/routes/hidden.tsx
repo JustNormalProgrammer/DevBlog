@@ -1,27 +1,17 @@
 import { Checkbox, Grid, Input, Stack, Typography } from '@mui/material'
-import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import InputAdornment from '@mui/material/InputAdornment'
 import SearchIcon from '@mui/icons-material/Search'
 import {
-  Link,
   createFileRoute,
-  notFound,
   redirect,
   useNavigate,
 } from '@tanstack/react-router'
 import { useDebouncedCallback } from 'use-debounce'
 import { useQuery } from '@tanstack/react-query'
-import IconButton from '@mui/material/IconButton'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
-import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
 import axios from 'axios'
 import useAxiosPrivate from '@/hooks/useAxiosPrivate'
 import InternalServerError from '@/components/primitives/InternalServerError'
-import StringAvatar from '@/components/primitives/StringAvatar'
-import { PostListSkeleton } from '@/components/skeletons/Skeletons'
 import { useAuth } from '@/contexts/authProvider'
 import BottomNav from '@/components/MainPage/MainBottomNav'
 import PostList from '@/components/PostList'

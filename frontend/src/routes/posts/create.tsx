@@ -120,7 +120,7 @@ function RouteComponent() {
       <Editor
         key={mode}
         apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
-        onInit={(evt, editor) => (editorRef.current = editor)}
+        onInit={(_, editor) => (editorRef.current = editor)}
         init={{
           placeholder: 'Type content of the post here...',
           height: 500,

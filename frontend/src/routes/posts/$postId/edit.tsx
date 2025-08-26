@@ -61,7 +61,7 @@ function RouteComponent() {
       isPublic: true,
     },
   })
-  const { isPending, isError, error, data } = useQuery<{}, Error, PostResponse>(
+  const { isPending, isError, data } = useQuery<{}, Error, PostResponse>(
     {
       queryKey: ['posts', postId],
       queryFn: async () => {
@@ -143,11 +143,11 @@ function RouteComponent() {
           required: 'Title is required',
           minLength: {
             value: 1,
-            message: 'Username cannot be empty',
+            message: 'Title cannot be empty',
           },
           maxLength: {
-            value: 30,
-            message: 'Username cannot exceed 30 characters',
+            value: 256,
+            message: 'Title cannot exceed 256 characters',
           },
         })}
         error={!!errors.title}

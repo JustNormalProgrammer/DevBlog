@@ -222,7 +222,7 @@ export default function Signup() {
             textAlign={'center'}
           >
             Already have an account?{' '}
-            <CustomLink to={'/login'} underline="none">
+            <CustomLink to={'/login'} underline="none" search={{redirect: ''}}>
               Login
             </CustomLink>
           </Typography>
@@ -242,7 +242,7 @@ export default function Signup() {
           variant="filled"
         >
           Account created{' '}
-          <CustomLink to={'/login'} underline="none" sx={{ color: '#D0F0C0' }}>
+          <CustomLink to={'/login'} underline="none" sx={{ color: '#D0F0C0' }} search={{redirect: ''}}>
             Login
           </CustomLink>
         </Alert>

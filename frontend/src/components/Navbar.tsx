@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Checkbox,
   Divider,
   IconButton,
   Menu,
@@ -49,7 +48,7 @@ function MainLogo() {
 function AuthLinks() {
   return (
     <>
-      <CustomLink underline="none" to="/login">
+      <CustomLink underline="none" to="/login" search={{redirect: ''}}>
         <Button size="large">Login</Button>
       </CustomLink>
       <Divider orientation="vertical" variant="middle" flexItem />

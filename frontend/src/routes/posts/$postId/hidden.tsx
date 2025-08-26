@@ -11,14 +11,8 @@ import { Paper, Typography, useColorScheme } from '@mui/material'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import { useEffect, useRef, useState } from 'react'
-import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
 import EditNoteOutlinedIcon from '@mui/icons-material/EditNoteOutlined'
-import {
-  AnimatePresence,
-  motion,
-  useMotionValueEvent,
-  useScroll,
-} from 'motion/react'
+import { useMotionValueEvent, useScroll } from 'motion/react'
 import CircularProgress from '@mui/material/CircularProgress'
 import Box from '@mui/material/Box'
 import parse from 'html-react-parser'
@@ -27,12 +21,8 @@ import axios from 'axios'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import Tooltip from '@mui/material/Tooltip'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import type { CommentResponse, PostResponse } from '@/types'
-import {
-  CommentSkeletonList,
-  PostSkeleton,
-} from '@/components/skeletons/Skeletons'
-import api from '@/utils/axios'
+import type { PostResponse } from '@/types'
+import { PostSkeleton } from '@/components/skeletons/Skeletons'
 import StringAvatar from '@/components/primitives/StringAvatar'
 import InternalServerError from '@/components/primitives/InternalServerError'
 import { useAuth } from '@/contexts/authProvider'
@@ -71,7 +61,6 @@ export const Route = createFileRoute('/posts/$postId/hidden')({
 
 function BottomNav({
   ref,
-  commentListRef,
   extendedActions = false,
 }: {
   ref: React.RefObject<HTMLDivElement | null>
@@ -91,9 +80,6 @@ function BottomNav({
     setScrollProgress(current * 100)
   })
   const navigate = useNavigate()
-  function handleClick() {
-    commentListRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
   const handleDelete = async () => {
     try {
       await apiPrivate.delete(`/posts/${postId}`)

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import { Button, Divider } from '@mui/material'
+import { Button } from '@mui/material'
 import { CustomLink } from '@/components/primitives/CustomLink'
 
 export const Route = createFileRoute('/forbidden')({
@@ -19,7 +19,7 @@ function RouteComponent() {
           You are not allowed to view this resource
         </Typography>
       </Stack>
-      <CustomLink underline="none" to="/">
+      <CustomLink underline="none" to="/" search={{ page: 1, q: '' }}>
         <Button size="large">Home</Button>
       </CustomLink>
     </Stack>
