@@ -1,4 +1,4 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import "dotenv/config";
 import { NextFunction, Request, Response } from "express";
 import { getRevokedToken } from "../db/queries/revokedTokens";
