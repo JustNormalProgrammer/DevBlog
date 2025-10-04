@@ -432,7 +432,7 @@ function RouteComponent() {
   }
   return (
     <Stack
-      sx={{ maxWidth: '850px', width: '100%', marginBottom: '50px', p: 4 }}
+      sx={{ maxWidth: '850px', width: '100%', marginBottom: '50px', p: {xs: 0, sm: 4} }}
       spacing={5}
     >
       {isPending ? (

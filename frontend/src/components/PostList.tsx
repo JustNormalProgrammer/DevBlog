@@ -41,7 +41,26 @@ export default function PostList({
               >
                 <Paper
                   elevation={5}
-                  sx={{ height: '300px', minWidth: '200px', p: 2 }}
+                  sx={{ height: '300px', minWidth: '200px', p: 2, overflow: 'hidden',position: 'relative', border: '1px solid transparent', transition: '0.2s ease-in',"::after": {
+                    content: '""',
+                    display: 'block',
+                    position: 'absolute',
+                    top: 0, 
+                    left: 0,
+                    transform: 'translateX(-100%)',
+                    width: '100%', 
+                    height: '100%', 
+                    backgroundColor: 'rgba(144, 202, 249, 0.03)',
+                    transition: '0.13s ease-in'
+                  },
+                  ':hover':{
+                    borderColor: 'rgba(144, 202, 249, 0.6)'
+                  },
+                  ':hover:after': 
+                  {
+                    transform: 'translateX(0)'
+                  }
+                }}
                 >
                   <Stack justifyContent={'space-between'} height={'100%'}>
                     <Typography
