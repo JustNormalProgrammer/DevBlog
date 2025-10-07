@@ -82,7 +82,14 @@ function BottomNav({
     setScrollProgress(current * 100)
   })
   const navigate = useNavigate()
-  function handleClick() {
+
+  const isFinished = scrollProgress === 100;
+
+  function handleClick(scrollToTop: boolean) {
+    if (scrollToTop) {
+      window.scrollTo({top: 0, behavior: 'smooth'})
+      return
+    }
     commentListRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
   const handleDelete = async () => {
@@ -94,6 +101,7 @@ function BottomNav({
       console.log(e)
     }
   }
+
   return (
     <Paper
       sx={{
@@ -165,11 +173,15 @@ function BottomNav({
           </IconButton>
         </Tooltip>
       )}
-      <Tooltip title="Comments">
+      <Tooltip title={isFinished ? "Top" : "Comments"}>
         <IconButton
           aria-label="scroll to comments"
           color="primary"
-          onClick={handleClick}
+          onClick={() => handleClick(isFinished)}
+          sx={{
+            transform: isFinished ? 'rotate(180deg)' : '',
+            transition: '0.2s ease-in',
+          }}
         >
           <KeyboardDoubleArrowDownIcon />
         </IconButton>
@@ -215,7 +227,13 @@ function Comment({ comment }: { comment: CommentResponse }) {
               {comment.authorName}
             </StringAvatar>
             <Typography
-              color={comment.isPublisher ? 'warning' : comment.isVerified ? 'secondary' : 'primary'}
+              color={
+                comment.isPublisher
+                  ? 'warning'
+                  : comment.isVerified
+                    ? 'secondary'
+                    : 'primary'
+              }
               sx={{
                 maxWidth: { xs: '100px', md: '200px' },
                 textOverflow: 'ellipsis',
@@ -432,7 +450,12 @@ function RouteComponent() {
   }
   return (
     <Stack
-      sx={{ maxWidth: '850px', width: '100%', marginBottom: '50px', p: {xs: 0, sm: 4} }}
+      sx={{
+        maxWidth: '850px',
+        width: '100%',
+        marginBottom: '50px',
+        p: { xs: 0, sm: 4 },
+      }}
       spacing={5}
     >
       {isPending ? (
